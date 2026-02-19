@@ -1,11 +1,11 @@
 # ============================================================================
-# GESTIONNAIRE SYSTÈME WINDOWS UNIFIÉ
+# GESTIONNAIRE SYSTÃˆME WINDOWS UNIFIÃ‰
 # Combine: Task Scheduler, Language Manager, Keyboard Remapper, Service Manager
 # ============================================================================
-# IMPORTANT: Nécessite les droits administrateur
+# IMPORTANT: NÃ©cessite les droits administrateur
 # ============================================================================
 
-# Vérification des privilèges administrateur
+# VÃ©rification des privilÃ¨ges administrateur
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
 if (-not $isAdmin) {
@@ -70,10 +70,10 @@ $global:KeyNames = @{
 function Show-MainMenu {
     Clear-Host
     Write-Host "========================================================================" -ForegroundColor Cyan
-    Write-Host "                GESTIONNAIRE SYSTÈME WINDOWS UNIFIÉ                     " -ForegroundColor Cyan
+    Write-Host "                GESTIONNAIRE SYSTÃˆME WINDOWS UNIFIÃ‰                     " -ForegroundColor Cyan
     Write-Host "========================================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "1. Gestionnaire des Applications au Démarrage" -ForegroundColor Green
+    Write-Host "1. Gestionnaire des Applications au DÃ©marrage" -ForegroundColor Green
     Write-Host "2. Gestionnaire de Langues" -ForegroundColor Yellow
     Write-Host "3. Remapping de Clavier" -ForegroundColor Magenta
     Write-Host "4. Gestionnaire de Services Windows" -ForegroundColor Cyan
@@ -90,20 +90,22 @@ function Show-MainMenu {
 function Show-TaskSchedulerMenu {
     Clear-Host
     Write-Host "========================================================" -ForegroundColor Cyan
-    Write-Host "   GESTIONNAIRE DES APPLICATIONS AU DÉMARRAGE          " -ForegroundColor Cyan
+    Write-Host "   GESTIONNAIRE DES APPLICATIONS AU DÃ‰MARRAGE          " -ForegroundColor Cyan
     Write-Host "========================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "1. Afficher toutes les applications au démarrage" -ForegroundColor Green
-    Write-Host "2. Activer une application" -ForegroundColor Green
-    Write-Host "3. Désactiver une application" -ForegroundColor Yellow
-    Write-Host "4. Rechercher une application" -ForegroundColor Cyan
-    Write-Host "5. Afficher les statistiques" -ForegroundColor Magenta
-    Write-Host "6. Retour au menu principal" -ForegroundColor Red
+    Write-Host "1. Afficher toutes les applications au dÃ©marrage" -ForegroundColor Green
+    Write-Host "2. Ajouter une application au dÃ©marrage" -ForegroundColor Green
+    Write-Host "3. Activer une application" -ForegroundColor Green
+    Write-Host "4. DÃ©sactiver une application" -ForegroundColor Yellow
+    Write-Host "5. DÃ©sactiver plusieurs applications" -ForegroundColor Yellow
+    Write-Host "6. Rechercher une application" -ForegroundColor Cyan
+    Write-Host "7. Afficher les statistiques" -ForegroundColor Magenta
+    Write-Host "8. Retour au menu principal" -ForegroundColor Red
     Write-Host ""
 }
 
 function Get-StartupApps {
-    Write-Host "Récupération des applications au démarrage..." -ForegroundColor Cyan
+    Write-Host "RÃ©cupÃ©ration des applications au dÃ©marrage..." -ForegroundColor Cyan
     
     $apps = @()
     
@@ -136,9 +138,9 @@ function Get-StartupApps {
         $apps += [PSCustomObject]@{
             Nom = $task.TaskName
             Chemin = $task.Actions[0].Execute
-            Type = "Tâche planifiée"
+            Type = "TÃ¢che planifiÃ©e"
             Emplacement = $task.TaskPath
-            Statut = if ($task.State -eq "Ready") { "Active" } else { "Désactivé" }
+            Statut = if ($task.State -eq "Ready") { "Active" } else { "DÃ©sactivÃ©" }
         }
     }
     
@@ -153,7 +155,7 @@ function Get-StartupApps {
                 $apps += [PSCustomObject]@{
                     Nom = $_.Name
                     Chemin = $_.FullName
-                    Type = "Dossier Démarrage"
+                    Type = "Dossier DÃ©marrage"
                     Emplacement = $folder
                     Statut = "Active"
                 }
@@ -168,9 +170,9 @@ function Show-AllApps {
     $apps = Get-StartupApps
     
     if ($apps.Count -eq 0) {
-        Write-Host "Aucune application au démarrage trouvée." -ForegroundColor Yellow
+        Write-Host "Aucune application au dÃ©marrage trouvÃ©e." -ForegroundColor Yellow
     } else {
-        Write-Host "`nApplications au démarrage trouvées : $($apps.Count)" -ForegroundColor Green
+        Write-Host "`nApplications au dÃ©marrage trouvÃ©es : $($apps.Count)" -ForegroundColor Green
         Write-Host "===============================================================" -ForegroundColor Gray
         
         $index = 1
@@ -192,11 +194,69 @@ function Show-AllApps {
     Write-Host "`n===============================================================" -ForegroundColor Gray
 }
 
+function Add-StartupApp {
+    Write-Host ""
+    Write-Host "========================================================" -ForegroundColor Cyan
+    Write-Host "   AJOUTER UNE APPLICATION AU DEMARRAGE                " -ForegroundColor Cyan
+    Write-Host "========================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "L'application sera ajoutee dans le registre HKLM" -ForegroundColor Gray
+    Write-Host "(visible dans Gestionnaire des taches > Demarrage)" -ForegroundColor Gray
+    Write-Host ""
+
+    $appName = Read-Host "Nom de l'entree (ex: MonApp)"
+    if ([string]::IsNullOrWhiteSpace($appName)) {
+        Write-Host "Erreur : le nom ne peut pas etre vide." -ForegroundColor Red
+        return
+    }
+
+    $appPath = Read-Host "Chemin complet de l'executable (ex: C:\MonApp\app.exe)"
+    $appPath = $appPath.Trim('"')
+
+    if (-not (Test-Path $appPath)) {
+        Write-Host ""
+        Write-Host "Avertissement : le fichier '$appPath' est introuvable." -ForegroundColor Yellow
+        $continue = Read-Host "Continuer quand meme ? (O/N)"
+        if ($continue -notmatch '^[Oo]') {
+            Write-Host "Operation annulee." -ForegroundColor Yellow
+            return
+        }
+    }
+
+    $regPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+
+    try {
+        # Verifier si une entree existe deja avec ce nom
+        $existing = Get-ItemProperty -Path $regPath -Name $appName -ErrorAction SilentlyContinue
+        if ($null -ne $existing) {
+            Write-Host ""
+            Write-Host "Attention : une entree '$appName' existe deja." -ForegroundColor Yellow
+            Write-Host "Valeur actuelle : $($existing.$appName)" -ForegroundColor Gray
+            $overwrite = Read-Host "Ecraser ? (O/N)"
+            if ($overwrite -notmatch '^[Oo]') {
+                Write-Host "Operation annulee." -ForegroundColor Yellow
+                return
+            }
+        }
+
+        Set-ItemProperty -Path $regPath -Name $appName -Value "`"$appPath`"" -ErrorAction Stop
+        Write-Host ""
+        Write-Host "[OK] '$appName' ajoute au demarrage avec succes !" -ForegroundColor Green
+        Write-Host "     Cle    : $regPath" -ForegroundColor Gray
+        Write-Host "     Valeur : `"$appPath`"" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "Verifiez dans : Gestionnaire des taches > onglet Demarrage" -ForegroundColor Cyan
+    }
+    catch {
+        Write-Host "[ERREUR] Lors de l'ajout : $($_.Exception.Message)" -ForegroundColor Red
+    }
+}
+
 function Disable-StartupApp {
     $apps = Get-StartupApps | Where-Object { $_.Statut -eq "Active" }
     
     if ($apps.Count -eq 0) {
-        Write-Host "Aucune application active à désactiver." -ForegroundColor Yellow
+        Write-Host "Aucune application active Ã  dÃ©sactiver." -ForegroundColor Yellow
         return
     }
     
@@ -207,7 +267,7 @@ function Disable-StartupApp {
         $index++
     }
     
-    $choice = Read-Host "`nNuméro de l'application à désactiver (0 pour annuler)"
+    $choice = Read-Host "`nNumÃ©ro de l'application Ã  dÃ©sactiver (0 pour annuler)"
     
     if ($choice -eq "0" -or $choice -eq "") { return }
     
@@ -219,42 +279,159 @@ function Disable-StartupApp {
     }
     
     try {
-        if ($selectedApp.Type -eq "Tâche planifiée") {
+        if ($selectedApp.Type -eq "TÃ¢che planifiÃ©e") {
             Disable-ScheduledTask -TaskName $selectedApp.Nom -TaskPath $selectedApp.Emplacement -ErrorAction Stop
-            Write-Host "[OK] Application '$($selectedApp.Nom)' désactivée avec succès!" -ForegroundColor Green
+            Write-Host "[OK] Application '$($selectedApp.Nom)' dÃ©sactivÃ©e avec succÃ¨s!" -ForegroundColor Green
         }
         elseif ($selectedApp.Type -eq "Registre") {
             Remove-ItemProperty -Path $selectedApp.Emplacement -Name $selectedApp.Nom -ErrorAction Stop
-            Write-Host "[OK] Application '$($selectedApp.Nom)' désactivée avec succès!" -ForegroundColor Green
+            Write-Host "[OK] Application '$($selectedApp.Nom)' dÃ©sactivÃ©e avec succÃ¨s!" -ForegroundColor Green
         }
-        elseif ($selectedApp.Type -eq "Dossier Démarrage") {
+        elseif ($selectedApp.Type -eq "Dossier DÃ©marrage") {
             $disabledPath = $selectedApp.Chemin + ".disabled"
             Rename-Item -Path $selectedApp.Chemin -NewName $disabledPath -ErrorAction Stop
-            Write-Host "[OK] Application '$($selectedApp.Nom)' désactivée avec succès!" -ForegroundColor Green
+            Write-Host "[OK] Application '$($selectedApp.Nom)' dÃ©sactivÃ©e avec succÃ¨s!" -ForegroundColor Green
         }
     }
     catch {
-        Write-Host "[ERREUR] Lors de la désactivation : $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[ERREUR] Lors de la dÃ©sactivation : $($_.Exception.Message)" -ForegroundColor Red
     }
 }
 
+function Disable-MultipleStartupApps {
+    Write-Host "`nDESACTIVATION DE PLUSIEURS APPLICATIONS" -ForegroundColor Cyan
+    Write-Host "========================================================" -ForegroundColor Gray
+    
+    $apps = Get-StartupApps | Where-Object { $_.Statut -eq "Active" }
+    
+    if ($apps.Count -eq 0) {
+        Write-Host "Aucune application active Ã  dÃ©sactiver." -ForegroundColor Yellow
+        return
+    }
+    
+    Write-Host "`nApplications actives :" -ForegroundColor Green
+    $index = 1
+    foreach ($app in $apps) {
+        Write-Host "[$index] $($app.Nom) - $($app.Type)" -ForegroundColor Cyan
+        $index++
+    }
+    
+    Write-Host "`n========================================================" -ForegroundColor Gray
+    Write-Host "Entrez les numÃ©ros des applications Ã  dÃ©sactiver" -ForegroundColor Yellow
+    Write-Host "Exemples: '1,3,5' ou '1 3 5' ou '1-5' pour une plage" -ForegroundColor Gray
+    Write-Host "Tapez '0' pour annuler" -ForegroundColor Gray
+    $input = Read-Host "`nVotre sÃ©lection"
+    
+    if ($input -eq "0" -or [string]::IsNullOrWhiteSpace($input)) {
+        Write-Host "OpÃ©ration annulÃ©e." -ForegroundColor Yellow
+        return
+    }
+    
+    # Traitement de l'entrÃ©e utilisateur
+    $selectedIndices = @()
+    
+    # Support pour les plages (ex: 1-5)
+    if ($input -match '(\d+)-(\d+)') {
+        $start = [int]$matches[1]
+        $end = [int]$matches[2]
+        $selectedIndices = $start..$end
+    }
+    # Support pour les listes sÃ©parÃ©es par virgule ou espace
+    else {
+        $input -split '[,\s]+' | ForEach-Object {
+            if ($_ -match '^\d+$') {
+                $selectedIndices += [int]$_
+            }
+        }
+    }
+    
+    if ($selectedIndices.Count -eq 0) {
+        Write-Host "Aucune sÃ©lection valide." -ForegroundColor Red
+        return
+    }
+    
+    # Filtrer les indices valides
+    $selectedIndices = $selectedIndices | Where-Object { $_ -gt 0 -and $_ -le $apps.Count } | Sort-Object -Unique
+    
+    if ($selectedIndices.Count -eq 0) {
+        Write-Host "Aucun numÃ©ro valide dans la sÃ©lection." -ForegroundColor Red
+        return
+    }
+    
+    # Afficher un rÃ©sumÃ© avant confirmation
+    Write-Host "`n========================================================" -ForegroundColor Gray
+    Write-Host "Applications sÃ©lectionnÃ©es pour dÃ©sactivation:" -ForegroundColor Yellow
+    foreach ($idx in $selectedIndices) {
+        $app = $apps[$idx - 1]
+        Write-Host "  - $($app.Nom) ($($app.Type))" -ForegroundColor Cyan
+    }
+    
+    Write-Host "`n========================================================" -ForegroundColor Gray
+    $confirm = Read-Host "Confirmer la dÃ©sactivation de ces $($selectedIndices.Count) application(s)? (O/N)"
+    
+    if ($confirm -ne "O" -and $confirm -ne "o") {
+        Write-Host "OpÃ©ration annulÃ©e." -ForegroundColor Yellow
+        return
+    }
+    
+    # DÃ©sactivation des applications sÃ©lectionnÃ©es
+    Write-Host "`nDÃ©sactivation en cours..." -ForegroundColor Cyan
+    $successCount = 0
+    $errorCount = 0
+    
+    foreach ($idx in $selectedIndices) {
+        $selectedApp = $apps[$idx - 1]
+        
+        try {
+            if ($selectedApp.Type -eq "TÃ¢che planifiÃ©e") {
+                Disable-ScheduledTask -TaskName $selectedApp.Nom -TaskPath $selectedApp.Emplacement -ErrorAction Stop
+                Write-Host "[OK] $($selectedApp.Nom) dÃ©sactivÃ©e" -ForegroundColor Green
+                $successCount++
+            }
+            elseif ($selectedApp.Type -eq "Registre") {
+                Remove-ItemProperty -Path $selectedApp.Emplacement -Name $selectedApp.Nom -ErrorAction Stop
+                Write-Host "[OK] $($selectedApp.Nom) dÃ©sactivÃ©e" -ForegroundColor Green
+                $successCount++
+            }
+            elseif ($selectedApp.Type -eq "Dossier DÃ©marrage") {
+                $disabledPath = $selectedApp.Chemin + ".disabled"
+                Rename-Item -Path $selectedApp.Chemin -NewName $disabledPath -ErrorAction Stop
+                Write-Host "[OK] $($selectedApp.Nom) dÃ©sactivÃ©e" -ForegroundColor Green
+                $successCount++
+            }
+        }
+        catch {
+            Write-Host "[ERREUR] $($selectedApp.Nom): $($_.Exception.Message)" -ForegroundColor Red
+            $errorCount++
+        }
+    }
+    
+    Write-Host "`n========================================================" -ForegroundColor Gray
+    Write-Host "RÃ©sumÃ©:" -ForegroundColor Cyan
+    Write-Host "  RÃ©ussies : $successCount" -ForegroundColor Green
+    if ($errorCount -gt 0) {
+        Write-Host "  Ã‰chouÃ©es : $errorCount" -ForegroundColor Red
+    }
+    Write-Host "========================================================" -ForegroundColor Gray
+}
+
 function Enable-StartupApp {
-    Write-Host "`nFonction d'activation en développement" -ForegroundColor Yellow
-    Write-Host "Pour réactiver une tâche planifiée, utilisez :" -ForegroundColor Cyan
-    Write-Host "Enable-ScheduledTask -TaskName 'NomDeLaTâche'" -ForegroundColor Gray
+    Write-Host "`nFonction d'activation en dÃ©veloppement" -ForegroundColor Yellow
+    Write-Host "Pour rÃ©activer une tÃ¢che planifiÃ©e, utilisez :" -ForegroundColor Cyan
+    Write-Host "Enable-ScheduledTask -TaskName 'NomDeLaTÃ¢che'" -ForegroundColor Gray
 }
 
 function Search-StartupApp {
-    $searchTerm = Read-Host "`nEntrez le nom de l'application à rechercher"
+    $searchTerm = Read-Host "`nEntrez le nom de l'application Ã  rechercher"
     
     if ([string]::IsNullOrWhiteSpace($searchTerm)) { return }
     
     $apps = Get-StartupApps | Where-Object { $_.Nom -like "*$searchTerm*" }
     
     if ($apps.Count -eq 0) {
-        Write-Host "Aucune application trouvée contenant '$searchTerm'" -ForegroundColor Yellow
+        Write-Host "Aucune application trouvÃ©e contenant '$searchTerm'" -ForegroundColor Yellow
     } else {
-        Write-Host "`n$($apps.Count) application(s) trouvée(s) :" -ForegroundColor Green
+        Write-Host "`n$($apps.Count) application(s) trouvÃ©e(s) :" -ForegroundColor Green
         foreach ($app in $apps) {
             Write-Host "`n  - $($app.Nom)" -ForegroundColor Cyan
             Write-Host "    Type   : $($app.Type)" -ForegroundColor Gray
@@ -298,19 +475,19 @@ function Start-LanguageManager {
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
     
-    Write-Host "Chargement des langues installées..." -ForegroundColor Yellow
+    Write-Host "Chargement des langues installÃ©es..." -ForegroundColor Yellow
     Write-Host ""
     
     try {
         $installedLanguages = Get-WinUserLanguageList
         
         if ($installedLanguages.Count -eq 0) {
-            Write-Host "Aucune langue trouvée!" -ForegroundColor Red
+            Write-Host "Aucune langue trouvÃ©e!" -ForegroundColor Red
             pause
             return
         }
         
-        Write-Host "LANGUES ACTUELLEMENT INSTALLÉES:" -ForegroundColor Green
+        Write-Host "LANGUES ACTUELLEMENT INSTALLÃ‰ES:" -ForegroundColor Green
         Write-Host "================================" -ForegroundColor Green
         for ($i = 0; $i -lt $installedLanguages.Count; $i++) {
             $lang = $installedLanguages[$i]
@@ -322,9 +499,9 @@ function Start-LanguageManager {
         Write-Host ""
         
         Write-Host "Quelle langue voulez-vous GARDER?" -ForegroundColor Yellow
-        Write-Host "(Toutes les autres seront SUPPRIMÉES DÉFINITIVEMENT)" -ForegroundColor Red
+        Write-Host "(Toutes les autres seront SUPPRIMÃ‰ES DÃ‰FINITIVEMENT)" -ForegroundColor Red
         Write-Host ""
-        $choice = Read-Host "Entrez le numéro [0-$($installedLanguages.Count - 1)]"
+        $choice = Read-Host "Entrez le numÃ©ro [0-$($installedLanguages.Count - 1)]"
         
         if ($choice -notmatch '^\d+$' -or [int]$choice -lt 0 -or [int]$choice -ge $installedLanguages.Count) {
             Write-Host ""
@@ -337,10 +514,10 @@ function Start-LanguageManager {
         
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Cyan
-        Write-Host "LANGUE À GARDER:" -ForegroundColor Green
+        Write-Host "LANGUE Ã€ GARDER:" -ForegroundColor Green
         Write-Host "  $($languageToKeep.LanguageTag) - $($languageToKeep.DisplayName)" -ForegroundColor White
         Write-Host ""
-        Write-Host "LANGUES À SUPPRIMER:" -ForegroundColor Red
+        Write-Host "LANGUES Ã€ SUPPRIMER:" -ForegroundColor Red
         
         $languagesToRemove = $installedLanguages | Where-Object { $_.LanguageTag -ne $languageToKeep.LanguageTag }
         
@@ -350,18 +527,18 @@ function Start-LanguageManager {
         
         Write-Host "========================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "ATTENTION: Cette action est IRRÉVERSIBLE!" -ForegroundColor Yellow
+        Write-Host "ATTENTION: Cette action est IRRÃ‰VERSIBLE!" -ForegroundColor Yellow
         $confirm = Read-Host "Tapez 'OUI' en majuscules pour confirmer"
         
         if ($confirm -ne "OUI") {
             Write-Host ""
-            Write-Host "Opération annulée." -ForegroundColor Yellow
+            Write-Host "OpÃ©ration annulÃ©e." -ForegroundColor Yellow
             pause
             return
         }
         
         Write-Host ""
-        Write-Host "Démarrage de la suppression..." -ForegroundColor Green
+        Write-Host "DÃ©marrage de la suppression..." -ForegroundColor Green
         Write-Host ""
         
         Write-Host "[1/3] Suppression des langues via l'API Windows..." -ForegroundColor Green
@@ -369,7 +546,7 @@ function Start-LanguageManager {
         try {
             $newLanguageList = @($languageToKeep)
             Set-WinUserLanguageList $newLanguageList -Force
-            Write-Host "  OK Toutes les langues supprimées sauf $($languageToKeep.LanguageTag)" -ForegroundColor Green
+            Write-Host "  OK Toutes les langues supprimÃ©es sauf $($languageToKeep.LanguageTag)" -ForegroundColor Green
         } catch {
             Write-Host "  X Erreur lors de la suppression: $($_.Exception.Message)" -ForegroundColor Red
         }
@@ -390,36 +567,48 @@ function Start-LanguageManager {
                 
                 Set-ItemProperty -Path $path -Name "BlockUserInputMethodsForSignIn" -Value 1 -Type DWord -Force
                 Set-ItemProperty -Path $path -Name "RestrictLanguagePacksAndFeaturesInstall" -Value 1 -Type DWord -Force
-                Write-Host "  OK Stratégies appliquées: $path" -ForegroundColor Green
+                Write-Host "  OK StratÃ©gies appliquÃ©es: $path" -ForegroundColor Green
             } catch {
                 Write-Host "  X Erreur: $path" -ForegroundColor Red
             }
         }
         
         Write-Host ""
-        Write-Host "[3/3] Désactivation synchronisation..." -ForegroundColor Green
+        Write-Host "[3/4] Correction ctfmon (saisie de texte Windows)..." -ForegroundColor Green
+        
+        try {
+            $ctfmonPath = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run"
+            Set-ItemProperty -Path $ctfmonPath -Name "ctfmon.exe" -Value "C:\Windows\System32\ctfmon.exe" -Type String -Force
+            Write-Host "  OK ctfmon.exe ajoutÃ© au dÃ©marrage automatique" -ForegroundColor Green
+        } catch {
+            Write-Host "  X Erreur ctfmon: $($_.Exception.Message)" -ForegroundColor Red
+        }
+        
+        Write-Host ""
+        Write-Host "[4/4] DÃ©sactivation synchronisation..." -ForegroundColor Green
         
         try {
             $syncPath = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\SettingSync\Groups\Language"
+
             if (-not (Test-Path $syncPath)) {
                 New-Item -Path $syncPath -Force | Out-Null
             }
             Set-ItemProperty -Path $syncPath -Name "Enabled" -Value 0 -Type DWord -Force
-            Write-Host "  OK Synchronisation des langues désactivée" -ForegroundColor Green
+            Write-Host "  OK Synchronisation des langues dÃ©sactivÃ©e" -ForegroundColor Green
         } catch {
             Write-Host "  X Erreur sync" -ForegroundColor Red
         }
         
         Write-Host ""
         Write-Host "========================================" -ForegroundColor Cyan
-        Write-Host "TERMINÉ AVEC SUCCÈS!" -ForegroundColor Green
+        Write-Host "TERMINÃ‰ AVEC SUCCÃˆS!" -ForegroundColor Green
         Write-Host "========================================" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "Langue conservée: $($languageToKeep.LanguageTag) - $($languageToKeep.DisplayName)" -ForegroundColor Green
-        Write-Host "Langues supprimées: $($languagesToRemove.Count)" -ForegroundColor Yellow
+        Write-Host "Langue conservÃ©e: $($languageToKeep.LanguageTag) - $($languageToKeep.DisplayName)" -ForegroundColor Green
+        Write-Host "Langues supprimÃ©es: $($languagesToRemove.Count)" -ForegroundColor Yellow
         Write-Host ""
         Write-Host "ACTIONS REQUISES:" -ForegroundColor Yellow
-        Write-Host "1. REDÉMARREZ votre ordinateur MAINTENANT" -ForegroundColor White
+        Write-Host "1. REDÃ‰MARREZ votre ordinateur MAINTENANT" -ForegroundColor White
         Write-Host ""
         
     } catch {
@@ -472,9 +661,9 @@ function Show-AvailableKeys {
     Write-Host "Fonction : F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12" -ForegroundColor Gray
     Write-Host "Modificateurs : CTRL ALT SHIFT CAPSLOCK WIN" -ForegroundColor Gray
     Write-Host "Navigation : UP DOWN LEFT RIGHT HOME END PAGEUP PAGEDOWN" -ForegroundColor Gray
-    Write-Host "Édition : ENTER BACKSPACE DELETE INSERT TAB ESC SPACE" -ForegroundColor Gray
+    Write-Host "Ã‰dition : ENTER BACKSPACE DELETE INSERT TAB ESC SPACE" -ForegroundColor Gray
     Write-Host "Ponctuation : PERIOD COMMA SEMICOLON QUOTE SLASH MINUS EQUALS" -ForegroundColor Gray
-    Write-Host "Spécial : DISABLE (pour désactiver une touche)" -ForegroundColor Gray
+    Write-Host "SpÃ©cial : DISABLE (pour dÃ©sactiver une touche)" -ForegroundColor Gray
     Write-Host ""
     Write-Host "===================================================================" -ForegroundColor Cyan
     Write-Host ""
@@ -503,7 +692,7 @@ function Set-KeyboardRemap {
         Set-ItemProperty -Path $regPath -Name "Scancode Map" -Value $scancodeMap -Type Binary -Force
         return $true
     } catch {
-        Write-Error "Erreur lors de la création du remapping: $_"
+        Write-Error "Erreur lors de la crÃ©ation du remapping: $_"
         return $false
     }
 }
@@ -527,7 +716,7 @@ function Get-CurrentRemap {
         
         Write-Host ""
         Write-Host "===================================================================" -ForegroundColor Cyan
-        Write-Host "            REMAPPING ACTUELLEMENT CONFIGURÉ" -ForegroundColor Cyan
+        Write-Host "            REMAPPING ACTUELLEMENT CONFIGURÃ‰" -ForegroundColor Cyan
         Write-Host "===================================================================" -ForegroundColor Cyan
         Write-Host ""
         
@@ -550,7 +739,7 @@ function Get-CurrentRemap {
             $destName = Get-KeyName $dest
             
             if ($dest -eq 0) {
-                Write-Host "  $sourceName -> DÉSACTIVÉ" -ForegroundColor White
+                Write-Host "  $sourceName -> DÃ‰SACTIVÃ‰" -ForegroundColor White
             } else {
                 Write-Host "  $sourceName -> $destName" -ForegroundColor White
             }
@@ -564,7 +753,7 @@ function Get-CurrentRemap {
         
     } catch {
         Write-Host ""
-        Write-Host "Aucun remapping configuré actuellement." -ForegroundColor Yellow
+        Write-Host "Aucun remapping configurÃ© actuellement." -ForegroundColor Yellow
         Write-Host ""
         return $false
     }
@@ -576,7 +765,7 @@ function Show-KeyboardRemapperMenu {
     Write-Host "       REMAPPING DE CLAVIER INTERACTIF - SCANCODE MAP            " -ForegroundColor Cyan
     Write-Host "===================================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "1. Créer un nouveau remapping" -ForegroundColor White
+    Write-Host "1. CrÃ©er un nouveau remapping" -ForegroundColor White
     Write-Host "2. Voir les touches disponibles" -ForegroundColor White
     Write-Host "3. Voir le remapping actuel" -ForegroundColor White
     Write-Host "4. Supprimer le remapping actuel" -ForegroundColor White
@@ -656,11 +845,11 @@ function Start-KeyboardRemapper {
                 $destKeyName = Get-KeyName $destCode
                 
                 Write-Host ""
-                Write-Host "Mapping ajouté: $sourceKeyName -> $destKeyName" -ForegroundColor Green
+                Write-Host "Mapping ajoutÃ©: $sourceKeyName -> $destKeyName" -ForegroundColor Green
                 
                 if ($mappings.Count -gt 0) {
                     Write-Host ""
-                    Write-Host "MAPPINGS CONFIGURÉS :" -ForegroundColor Cyan
+                    Write-Host "MAPPINGS CONFIGURÃ‰S :" -ForegroundColor Cyan
                     foreach ($m in $mappings.GetEnumerator()) {
                         $sn = Get-KeyName $m.Key
                         $dn = Get-KeyName $m.Value
@@ -682,13 +871,13 @@ function Start-KeyboardRemapper {
                 
                 if (Set-KeyboardRemap -Mappings $mappings) {
                     Write-Host ""
-                    Write-Host "Remapping créé avec succès!" -ForegroundColor Green
+                    Write-Host "Remapping crÃ©Ã© avec succÃ¨s!" -ForegroundColor Green
                     Write-Host ""
-                    Write-Host "IMPORTANT: Redémarrez votre ordinateur pour appliquer!" -ForegroundColor Yellow
+                    Write-Host "IMPORTANT: RedÃ©marrez votre ordinateur pour appliquer!" -ForegroundColor Yellow
                     Write-Host ""
                 } else {
                     Write-Host ""
-                    Write-Host "Erreur lors de la création du remapping" -ForegroundColor Red
+                    Write-Host "Erreur lors de la crÃ©ation du remapping" -ForegroundColor Red
                     Write-Host ""
                 }
             }
@@ -705,18 +894,18 @@ function Start-KeyboardRemapper {
         }
         elseif ($choice -eq "4") {
             Write-Host ""
-            Write-Host "Êtes-vous sûr de vouloir supprimer le remapping actuel ? (o/n)" -ForegroundColor Yellow
+            Write-Host "ÃŠtes-vous sÃ»r de vouloir supprimer le remapping actuel ? (o/n)" -ForegroundColor Yellow
             $confirm = Read-Host
             
             if ($confirm -eq "o") {
                 if (Remove-KeyboardRemap) {
                     Write-Host ""
-                    Write-Host "Remapping supprimé avec succès!" -ForegroundColor Green
-                    Write-Host "Redémarrez votre ordinateur pour restaurer le comportement normal." -ForegroundColor Yellow
+                    Write-Host "Remapping supprimÃ© avec succÃ¨s!" -ForegroundColor Green
+                    Write-Host "RedÃ©marrez votre ordinateur pour restaurer le comportement normal." -ForegroundColor Yellow
                     Write-Host ""
                 } else {
                     Write-Host ""
-                    Write-Host "Aucun remapping trouvé ou erreur lors de la suppression." -ForegroundColor Yellow
+                    Write-Host "Aucun remapping trouvÃ© ou erreur lors de la suppression." -ForegroundColor Yellow
                     Write-Host ""
                 }
             }
@@ -746,11 +935,11 @@ function Show-ServiceManagerMenu {
     Write-Host ""
     Write-Host "1. Lister tous les services" -ForegroundColor Green
     Write-Host "2. Lister uniquement les services actifs" -ForegroundColor Green
-    Write-Host "3. Lister uniquement les services arrêtés" -ForegroundColor Yellow
+    Write-Host "3. Lister uniquement les services arrÃªtÃ©s" -ForegroundColor Yellow
     Write-Host "4. Rechercher un service" -ForegroundColor Cyan
-    Write-Host "5. Modifier un service (Démarrer/Arrêter/Type)" -ForegroundColor Magenta
+    Write-Host "5. Modifier un service (DÃ©marrer/ArrÃªter/Type)" -ForegroundColor Magenta
     Write-Host "6. Services consommant le plus de ressources" -ForegroundColor Red
-    Write-Host "7. Services recommandés à désactiver" -ForegroundColor Yellow
+    Write-Host "7. Services recommandÃ©s Ã  dÃ©sactiver" -ForegroundColor Yellow
     Write-Host "8. Retour au menu principal" -ForegroundColor Red
     Write-Host ""
     Write-Host "========================================================================" -ForegroundColor Cyan
@@ -765,7 +954,7 @@ function Get-AllServices {
     Write-Host "Recuperation des services..." -ForegroundColor Cyan
     Write-Host "Veuillez patienter..." -ForegroundColor Yellow
     
-    # Récupérer tous les services via WMI en une seule requête (plus rapide)
+    # RÃ©cupÃ©rer tous les services via WMI en une seule requÃªte (plus rapide)
     $wmiServices = Get-WmiObject -Class Win32_Service | Group-Object -Property Name -AsHashTable
     
     $services = Get-Service | Sort-Object DisplayName
@@ -839,7 +1028,7 @@ function Show-ServicesList {
     $index = 1
     foreach ($service in $services) {
         $statusColor = if ($service.Statut -eq "Running") { "Green" } else { "Red" }
-        $statusIcon = if ($service.Statut -eq "Running") { "●" } else { "○" }
+        $statusIcon = if ($service.Statut -eq "Running") { "â—" } else { "â—‹" }
         
         # Affichage compact sur une ligne
         Write-Host "[$index] " -NoNewline -ForegroundColor Cyan
@@ -850,7 +1039,7 @@ function Show-ServicesList {
         
         $index++
         
-        # Pause tous les 30 services pour éviter le défilement trop rapide
+        # Pause tous les 30 services pour Ã©viter le dÃ©filement trop rapide
         if ($index % 30 -eq 0) {
             Write-Host ""
             Write-Host "--- Appuyez sur une touche pour continuer ---" -ForegroundColor Yellow
@@ -863,7 +1052,7 @@ function Show-ServicesList {
 }
 
 function Search-Service {
-    $searchTerm = Read-Host "`nEntrez le nom du service à rechercher"
+    $searchTerm = Read-Host "`nEntrez le nom du service Ã  rechercher"
     
     if ([string]::IsNullOrWhiteSpace($searchTerm)) { return }
     
@@ -872,18 +1061,18 @@ function Search-Service {
     }
     
     if ($services.Count -eq 0) {
-        Write-Host "`nAucun service trouvé contenant '$searchTerm'" -ForegroundColor Yellow
+        Write-Host "`nAucun service trouvÃ© contenant '$searchTerm'" -ForegroundColor Yellow
     } else {
-        Write-Host "`n$($services.Count) service(s) trouvé(s) :" -ForegroundColor Green
+        Write-Host "`n$($services.Count) service(s) trouvÃ©(s) :" -ForegroundColor Green
         Write-Host "========================================================================" -ForegroundColor Gray
         
         foreach ($service in $services) {
             $statusColor = if ($service.Statut -eq "Running") { "Green" } else { "Red" }
             
-            Write-Host "`n● $($service.NomAffichage)" -ForegroundColor Cyan
+            Write-Host "`nâ— $($service.NomAffichage)" -ForegroundColor Cyan
             Write-Host "  Nom           : $($service.Nom)" -ForegroundColor Gray
             Write-Host "  Statut        : $($service.Statut)" -ForegroundColor $statusColor
-            Write-Host "  Type démarrage: $($service.TypeDemarrage)" -ForegroundColor Gray
+            Write-Host "  Type dÃ©marrage: $($service.TypeDemarrage)" -ForegroundColor Gray
         }
         
         Write-Host "`n========================================================================" -ForegroundColor Gray
@@ -1021,7 +1210,7 @@ function Show-ResourceIntensiveServices {
         }
         
         if ($serviceProcesses.Count -eq 0) {
-            Write-Host "Aucun service consommant significativement de ressources trouvé." -ForegroundColor Yellow
+            Write-Host "Aucun service consommant significativement de ressources trouvÃ©." -ForegroundColor Yellow
             return
         }
         
@@ -1033,7 +1222,7 @@ function Show-ResourceIntensiveServices {
             Write-Host "`n[$index] $($svc.NomAffichage)" -ForegroundColor Cyan
             Write-Host "    Nom service: $($svc.Nom)" -ForegroundColor Gray
             Write-Host "    CPU (sec)  : $($svc.CPU)" -ForegroundColor Yellow
-            Write-Host "    Mémoire    : $($svc.MemoreMB) MB" -ForegroundColor Yellow
+            Write-Host "    MÃ©moire    : $($svc.MemoreMB) MB" -ForegroundColor Yellow
             Write-Host "    PID        : $($svc.ProcessId)" -ForegroundColor DarkGray
             
             $index++
@@ -1047,22 +1236,22 @@ function Show-ResourceIntensiveServices {
 }
 
 function Show-RecommendedDisableServices {
-    Write-Host "`nSERVICES POUVANT ÊTRE DÉSACTIVÉS EN TOUTE SÉCURITÉ" -ForegroundColor Yellow
-    Write-Host "(Sur la plupart des systèmes)" -ForegroundColor Gray
+    Write-Host "`nSERVICES POUVANT ÃŠTRE DÃ‰SACTIVÃ‰S EN TOUTE SÃ‰CURITÃ‰" -ForegroundColor Yellow
+    Write-Host "(Sur la plupart des systÃ¨mes)" -ForegroundColor Gray
     Write-Host "========================================================================" -ForegroundColor Gray
     Write-Host ""
     
     $recommendedDisable = @(
-        @{Name="dmwappushservice"; Display="Service de routage de messages push WAP dmwappushservice"; Reason="Télémétrie et collecte de données"},
-        @{Name="DiagTrack"; Display="Expériences des utilisateurs connectés et télémétrie"; Reason="Collecte de données d'utilisation"},
-        @{Name="RetailDemo"; Display="Service de démonstration du magasin de détail"; Reason="Inutile sauf en magasin"},
+        @{Name="dmwappushservice"; Display="Service de routage de messages push WAP dmwappushservice"; Reason="TÃ©lÃ©mÃ©trie et collecte de donnÃ©es"},
+        @{Name="DiagTrack"; Display="ExpÃ©riences des utilisateurs connectÃ©s et tÃ©lÃ©mÃ©trie"; Reason="Collecte de donnÃ©es d'utilisation"},
+        @{Name="RetailDemo"; Display="Service de dÃ©monstration du magasin de dÃ©tail"; Reason="Inutile sauf en magasin"},
         @{Name="XblAuthManager"; Display="Gestionnaire d'authentification Xbox Live"; Reason="Inutile si vous n'utilisez pas Xbox"},
         @{Name="XblGameSave"; Display="Service de sauvegarde de jeux Xbox Live"; Reason="Inutile si vous n'utilisez pas Xbox"},
-        @{Name="XboxNetApiSvc"; Display="Service réseau Xbox Live"; Reason="Inutile si vous n'utilisez pas Xbox"},
-        @{Name="XboxGipSvc"; Display="Service de gestion des contrôleurs Xbox"; Reason="Inutile sans manette Xbox"},
-        @{Name="WSearch"; Display="Recherche Windows"; Reason="Améliore perf. mais désactive la recherche rapide"},
+        @{Name="XboxNetApiSvc"; Display="Service rÃ©seau Xbox Live"; Reason="Inutile si vous n'utilisez pas Xbox"},
+        @{Name="XboxGipSvc"; Display="Service de gestion des contrÃ´leurs Xbox"; Reason="Inutile sans manette Xbox"},
+        @{Name="WSearch"; Display="Recherche Windows"; Reason="AmÃ©liore perf. mais dÃ©sactive la recherche rapide"},
         @{Name="SysMain"; Display="SysMain (Superfetch)"; Reason="Peut ralentir les SSD"},
-        @{Name="WbioSrvc"; Display="Service biométrique Windows"; Reason="Inutile sans capteur biométrique"}
+        @{Name="WbioSrvc"; Display="Service biomÃ©trique Windows"; Reason="Inutile sans capteur biomÃ©trique"}
     )
     
     $index = 1
@@ -1071,7 +1260,7 @@ function Show-RecommendedDisableServices {
         
         if ($service) {
             $statusColor = if ($service.Status -eq "Running") { "Red" } else { "Green" }
-            $statusIcon = if ($service.Status -eq "Running") { "●" } else { "○" }
+            $statusIcon = if ($service.Status -eq "Running") { "â—" } else { "â—‹" }
             
             Write-Host "[$index] " -NoNewline -ForegroundColor Cyan
             Write-Host "$($rec.Display)" -ForegroundColor White
@@ -1086,7 +1275,7 @@ function Show-RecommendedDisableServices {
     }
     
     Write-Host "========================================================================" -ForegroundColor Gray
-    Write-Host "ATTENTION: Désactivez uniquement si vous comprenez les conséquences!" -ForegroundColor Red
+    Write-Host "ATTENTION: DÃ©sactivez uniquement si vous comprenez les consÃ©quences!" -ForegroundColor Red
     Write-Host "========================================================================" -ForegroundColor Gray
 }
 
@@ -1130,14 +1319,16 @@ while ($continueMain) {
         $taskRunning = $true
         while ($taskRunning) {
             Show-TaskSchedulerMenu
-            $taskChoice = Read-Host "Choisissez une option (1-6)"
+            $taskChoice = Read-Host "Choisissez une option (1-8)"
             
             if ($taskChoice -eq "1") { Show-AllApps; pause }
-            elseif ($taskChoice -eq "2") { Enable-StartupApp; pause }
-            elseif ($taskChoice -eq "3") { Disable-StartupApp; pause }
-            elseif ($taskChoice -eq "4") { Search-StartupApp; pause }
-            elseif ($taskChoice -eq "5") { Show-Statistics; pause }
-            elseif ($taskChoice -eq "6") { $taskRunning = $false }
+            elseif ($taskChoice -eq "2") { Add-StartupApp; pause }
+            elseif ($taskChoice -eq "3") { Enable-StartupApp; pause }
+            elseif ($taskChoice -eq "4") { Disable-StartupApp; pause }
+            elseif ($taskChoice -eq "5") { Disable-MultipleStartupApps; pause }
+            elseif ($taskChoice -eq "6") { Search-StartupApp; pause }
+            elseif ($taskChoice -eq "7") { Show-Statistics; pause }
+            elseif ($taskChoice -eq "8") { $taskRunning = $false }
             else { 
                 Write-Host "Option invalide!" -ForegroundColor Red
                 pause 

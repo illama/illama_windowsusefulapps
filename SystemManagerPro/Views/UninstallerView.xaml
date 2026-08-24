@@ -1,0 +1,46 @@
+<UserControl x:Class="SystemManagerPro.Views.UninstallerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="UserControl_Loaded">
+    <Grid Margin="32,26,32,26">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <TextBlock Text="Programmes installés" Style="{StaticResource PageTitle}"/>
+            <TextBlock Text="Recherchez et désinstallez les applications installées sur ce PC." Style="{StaticResource PageSubtitle}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,20,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="SearchBox" Style="{StaticResource Input}" MaxWidth="360" HorizontalAlignment="Left"
+                     TextChanged="SearchBox_TextChanged" Tag="Rechercher un programme…"/>
+            <Button Grid.Column="1" Content="🔄  Actualiser" Style="{StaticResource BtnBase}" Click="Refresh_Click"/>
+        </Grid>
+
+        <Border Grid.Row="2" Style="{StaticResource Card}" Margin="0,16,0,0" Padding="0">
+            <DataGrid x:Name="ProgramsGrid" Margin="6">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="NOM" Binding="{Binding Nom}" Width="2*"/>
+                    <DataGridTextColumn Header="VERSION" Binding="{Binding Version}" Width="0.8*"/>
+                    <DataGridTextColumn Header="ÉDITEUR" Binding="{Binding Editeur}" Width="1.2*"/>
+                    <DataGridTextColumn Header="INSTALLÉ LE" Binding="{Binding DateInstall}" Width="0.8*"/>
+                    <DataGridTextColumn Header="TAILLE" Binding="{Binding TailleMB, StringFormat={}{0:0.#} Mo}" Width="0.7*"/>
+                    <DataGridTemplateColumn Header="" Width="130">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Désinstaller" Style="{StaticResource BtnDanger}" Click="Uninstall_Click" Padding="10,4"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

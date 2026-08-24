@@ -1,0 +1,68 @@
+<UserControl x:Class="SystemManagerPro.Views.LanguageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="UserControl_Loaded">
+    <ScrollViewer Style="{StaticResource CleanScrollViewer}">
+        <StackPanel Margin="32,26,32,26">
+            <TextBlock Text="Langues Windows" Style="{StaticResource PageTitle}"/>
+            <TextBlock Text="Choisissez les langues à conserver ; les autres seront supprimées définitivement." Style="{StaticResource PageSubtitle}"/>
+
+            <Border Style="{StaticResource Card}" Margin="0,20,0,0" Background="#1F1A0E" BorderBrush="{StaticResource Warning}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="⚠️" FontSize="16" VerticalAlignment="Top"/>
+                    <TextBlock Margin="10,0,0,0" TextWrapping="Wrap" Foreground="{StaticResource TextPrimary}" FontSize="12.5">
+                        Cette action est <Run FontWeight="Bold">irréversible</Run>. Un redémarrage est requis pour finaliser
+                        la suppression des langues non conservées.
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <Grid Margin="0,18,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Langues installées" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="🔄  Actualiser" Style="{StaticResource BtnBase}" Click="Refresh_Click" Margin="0,0,8,0"/>
+                    <Button Content="Tout cocher" Style="{StaticResource BtnGhost}" Click="CheckAll_Click"/>
+                    <Button Content="Tout décocher" Style="{StaticResource BtnGhost}" Click="UncheckAll_Click"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                <ItemsControl x:Name="LangList">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="2"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <CheckBox Style="{StaticResource SquareCheckBox}" IsChecked="{Binding Keep, Mode=TwoWay}"
+                                      Margin="4,8,10,8">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding DisplayName}" FontSize="13"/>
+                                    <TextBlock Text="{Binding Tag}" Style="{StaticResource Muted}"/>
+                                </StackPanel>
+                            </CheckBox>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                <StackPanel>
+                    <CheckBox x:Name="HardeningCheck" Style="{StaticResource SquareCheckBox}" IsChecked="True">
+                        <StackPanel>
+                            <TextBlock Text="Empêcher la réinstallation automatique de langues (recommandé)" FontSize="13"/>
+                            <TextBlock Text="Bloque les stratégies d'ajout automatique et corrige ctfmon.exe" Style="{StaticResource Muted}"/>
+                        </StackPanel>
+                    </CheckBox>
+                    <Button Content="Appliquer les modifications" Style="{StaticResource BtnPrimary}"
+                            HorizontalAlignment="Left" Margin="0,16,0,0" Click="Apply_Click"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

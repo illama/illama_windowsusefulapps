@@ -1,0 +1,126 @@
+<UserControl x:Class="SystemManagerPro.Views.ServicesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="UserControl_Loaded">
+    <Grid Margin="32,26,32,26">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Services Windows" Style="{StaticResource PageTitle}"/>
+        <TextBlock Grid.Row="0" Text="Consultez, démarrez, arrêtez ou reconfigurez les services système." Style="{StaticResource PageSubtitle}" Margin="0,32,0,0"/>
+
+        <!-- Onglets -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,18,0,0">
+            <RadioButton x:Name="TabList" Style="{StaticResource PillTab}" GroupName="SvcTabs" Content="Liste des services"
+                         IsChecked="True" Checked="Tab_Checked"/>
+            <RadioButton x:Name="TabAnalysis" Style="{StaticResource PillTab}" GroupName="SvcTabs" Content="Analyse &amp; recommandations"
+                         Checked="Tab_Checked"/>
+        </StackPanel>
+
+        <!-- ===== Panneau Liste ===== -->
+        <StackPanel x:Name="ListPanel" Grid.Row="2" Grid.RowSpan="3">
+            <Grid Margin="0,16,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="SearchBox" Style="{StaticResource Input}" MaxWidth="360" HorizontalAlignment="Left"
+                         TextChanged="SearchBox_TextChanged" Tag="Rechercher un service…"/>
+                <Button Grid.Column="1" Content="🔄  Actualiser" Style="{StaticResource BtnBase}" Click="Refresh_Click"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                <RadioButton x:Name="FilterAll" Style="{StaticResource PillTab}" GroupName="SvcFilter" Content="Tous" IsChecked="True" Checked="Filter_Checked"/>
+                <RadioButton x:Name="FilterRunning" Style="{StaticResource PillTab}" GroupName="SvcFilter" Content="Actifs" Checked="Filter_Checked"/>
+                <RadioButton x:Name="FilterStopped" Style="{StaticResource PillTab}" GroupName="SvcFilter" Content="Arrêtés" Checked="Filter_Checked"/>
+            </StackPanel>
+
+            <!-- Barre d'actions sur la sélection -->
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="SelectionLabel" Text="Sélectionnez un service dans la liste ci-dessous pour agir dessus."
+                               VerticalAlignment="Center" Foreground="{StaticResource TextSecondary}" FontSize="12.5"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <ComboBox x:Name="StartModeCombo" Style="{StaticResource Combo}" Width="150" Margin="0,0,8,0">
+                            <ComboBoxItem Content="Automatique"/>
+                            <ComboBoxItem Content="Manuel"/>
+                            <ComboBoxItem Content="Désactivé"/>
+                        </ComboBox>
+                        <Button Content="Appliquer" Style="{StaticResource BtnBase}" Click="ApplyStartMode_Click" Margin="0,0,8,0"/>
+                        <Button Content="▶ Démarrer" Style="{StaticResource BtnBase}" Click="Start_Click" Margin="0,0,8,0"/>
+                        <Button Content="⏹ Arrêter" Style="{StaticResource BtnDanger}" Click="Stop_Click" Margin="0,0,8,0"/>
+                        <Button Content="⟳ Redémarrer" Style="{StaticResource BtnBase}" Click="Restart_Click"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="0" Height="420">
+                <DataGrid x:Name="ServicesGrid" Margin="6" SelectionChanged="Grid_SelectionChanged" SelectionMode="Single">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="NOM AFFICHÉ" Binding="{Binding NomAffichage}" Width="2*"/>
+                        <DataGridTextColumn Header="NOM SERVICE" Binding="{Binding Nom}" Width="1.4*"/>
+                        <DataGridTemplateColumn Header="STATUT" Width="110">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="8" Height="8" VerticalAlignment="Center" Margin="0,0,6,0">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="{StaticResource Danger}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding EnCours}" Value="True">
+                                                            <Setter Property="Fill" Value="{StaticResource Success}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                        <TextBlock Text="{Binding Statut}" VerticalAlignment="Center" FontSize="12.5"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTextColumn Header="DÉMARRAGE" Binding="{Binding TypeDemarrage}" Width="1*"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </StackPanel>
+
+        <!-- ===== Panneau Analyse ===== -->
+        <ScrollViewer x:Name="AnalysisPanel" Grid.Row="2" Grid.RowSpan="3" Style="{StaticResource CleanScrollViewer}" Visibility="Collapsed">
+            <StackPanel Margin="0,16,0,0">
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="Top consommateurs de ressources" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="Basé sur le temps CPU cumulé des processus associés à un service." Style="{StaticResource Muted}" Margin="0,4,0,10"/>
+                        <DataGrid x:Name="ResourceGrid" Height="260">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="SERVICE" Binding="{Binding NomAffichage}" Width="2*"/>
+                                <DataGridTextColumn Header="CPU (s)" Binding="{Binding CpuSeconds}" Width="1*"/>
+                                <DataGridTextColumn Header="MÉMOIRE (Mo)" Binding="{Binding MemoireMb}" Width="1*"/>
+                                <DataGridTextColumn Header="PID" Binding="{Binding Pid}" Width="0.7*"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                    <StackPanel>
+                        <TextBlock Text="Services habituellement désactivables sans risque" Style="{StaticResource SectionTitle}"/>
+                        <TextBlock Text="À désactiver uniquement si vous comprenez les conséquences." Style="{StaticResource Muted}" Margin="0,4,0,10"/>
+                        <ItemsControl x:Name="RecommendedList"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

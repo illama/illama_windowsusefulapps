@@ -1,0 +1,18 @@
+# Sorties de build .NET
+[Bb]in/
+[Oo]bj/
+SystemManagerPro/publish/
+SystemManagerPro/publish-installer/
+SystemManagerPro/installer-output/
+*.user
+
+# Journal d'erreurs générés par l'application
+crash-log.txt
+
+# Divers
+.vs/
+*.suo
+
+# Exécutable autonome (155 Mo) : distribué via les Releases GitHub, pas versionné dans le dépôt
+# (GitHub refuse de toute façon les fichiers >100 Mo sans Git LFS).
+/GestionnaireSystemePro.exe

@@ -1,0 +1,50 @@
+GESTIONNAIRE SYSTÈME PRO — v2.0
+================================
+
+Application graphique (WPF/.NET 8, autonome — aucune installation requise)
+qui remplace le script PowerShell illama_windowsusefulapps_v.1.0.4.ps1.
+
+LANCEMENT
+---------
+Double-cliquez sur GestionnaireSystemePro.exe
+Windows affichera une invite UAC (droits administrateur) : cliquez sur "Oui".
+C'est un exécutable autonome (~155 Mo) : le runtime .NET est embarqué, rien
+d'autre à installer.
+
+FONCTIONNALITÉS
+----------------
+Reprises du script d'origine, avec interface graphique :
+  • Tableau de bord — CPU, RAM, disques, uptime en temps réel
+  • Démarrage — applications au démarrage (registre, tâches planifiées,
+    dossier Démarrage), activer/désactiver/ajouter, recherche
+  • Services Windows — liste, démarrer/arrêter/redémarrer, changer le type
+    de démarrage, analyse des services gourmands en ressources
+  • Langues — conserver certaines langues et supprimer les autres
+  • Clavier — remapping de touches (Scancode Map), interface visuelle
+
+Nouvelles fonctionnalités :
+  • Nettoyage — scan et suppression des fichiers temporaires, cache Windows
+    Update, Prefetch, caches navigateurs, corbeille — avec taille estimée
+  • Réseau — liste des adaptateurs, vider le cache DNS, réinitialiser
+    Winsock/TCP-IP, renouveler l'IP, test de ping
+  • Programmes installés — liste et désinstallation des applications
+  • Réglages rapides — extensions de fichiers, fichiers cachés, thème
+    sombre, recherche Bing, suggestions Windows, Game Bar, notifications,
+    télémétrie — chaque réglage est un interrupteur
+  • Point de restauration système — en un clic, avant toute manipulation
+  • Journal d'activité — historique de toutes les actions, exportable
+
+FICHIERS
+--------
+  GestionnaireSystemePro.exe        → l'application (à lancer)
+  SystemManagerPro\                 → code source du projet (C#/WPF)
+  illama_windowsusefulapps_v.1.0.4.ps1/.bat → ancien script, conservé pour
+                                       référence ; peut être supprimé une
+                                       fois que la nouvelle application vous
+                                       convient.
+
+Pour recompiler après modification du code source :
+  cd SystemManagerPro
+  dotnet publish -c Release -r win-x64 --self-contained true ^
+    -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true ^
+    -o publish

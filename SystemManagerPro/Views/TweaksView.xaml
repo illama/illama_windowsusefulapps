@@ -1,0 +1,55 @@
+<UserControl x:Class="SystemManagerPro.Views.TweaksView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="UserControl_Loaded">
+    <ScrollViewer Style="{StaticResource CleanScrollViewer}">
+        <StackPanel Margin="32,26,32,26">
+            <TextBlock Text="Réglages rapides" Style="{StaticResource PageTitle}"/>
+            <TextBlock Text="Les réglages Windows les plus demandés, activables en un clic." Style="{StaticResource PageSubtitle}"/>
+
+            <Border Style="{StaticResource Card}" Margin="0,20,0,0">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Point de restauration système" Style="{StaticResource SectionTitle}"/>
+                            <TextBlock Text="Recommandé avant toute manipulation du registre ou des services." Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="🛡️  Créer maintenant" Style="{StaticResource BtnPrimary}"
+                                VerticalAlignment="Center" Click="RestorePoint_Click"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                <StackPanel>
+                    <TextBlock Text="Interrupteurs" Style="{StaticResource SectionTitle}"/>
+                    <ItemsControl x:Name="TweakList" Margin="0,14,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="14,12" Margin="0,0,0,8" CornerRadius="8" Background="{StaticResource BgElevated2}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Nom}" FontSize="13" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <CheckBox Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                                  IsChecked="{Binding IsOn, Mode=OneWay}" VerticalAlignment="Center"
+                                                  Click="Toggle_Click"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

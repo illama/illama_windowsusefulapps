@@ -1,0 +1,83 @@
+<UserControl x:Class="SystemManagerPro.Views.CleanupView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="UserControl_Loaded">
+    <ScrollViewer Style="{StaticResource CleanScrollViewer}">
+        <StackPanel Margin="32,26,32,26">
+            <TextBlock Text="Nettoyage du système" Style="{StaticResource PageTitle}"/>
+            <TextBlock Text="Scanne et supprime les fichiers temporaires, caches et éléments inutiles pour libérer de l'espace." Style="{StaticResource PageSubtitle}"/>
+
+            <UniformGrid Columns="2" Margin="0,20,0,0">
+                <Border Style="{StaticResource Card}" Margin="0,0,10,0">
+                    <StackPanel>
+                        <TextBlock Text="ESPACE RÉCUPÉRABLE" Style="{StaticResource Muted}" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="TotalLabel" Text="—" FontSize="28" FontWeight="Bold" Margin="0,6,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource Card}" Margin="10,0,0,0">
+                    <StackPanel>
+                        <TextBlock Text="CATÉGORIES SÉLECTIONNÉES" Style="{StaticResource Muted}" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="SelectedCountLabel" Text="—" FontSize="28" FontWeight="Bold" Margin="0,6,0,0"/>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Grid Margin="0,18,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="Catégories à nettoyer" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Button Content="🔍  Scanner" Style="{StaticResource BtnBase}" Click="Scan_Click" Margin="0,0,8,0"/>
+                    <Button Content="🧹  Nettoyer la sélection" Style="{StaticResource BtnPrimary}" Click="Clean_Click"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Style="{StaticResource Card}" Margin="0,12,0,0">
+                <ItemsControl x:Name="CategoryList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="12" Margin="0,0,0,8" CornerRadius="8" Background="{StaticResource BgElevated2}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox Style="{StaticResource SquareCheckBox}" IsChecked="{Binding IsChecked, Mode=TwoWay}">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Nom}" FontSize="13" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Description}" Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                    </CheckBox>
+                                    <TextBlock Grid.Column="1" Text="{Binding TailleLabel}" FontWeight="Bold" FontSize="14"
+                                               VerticalAlignment="Center" Foreground="{StaticResource Accent2}"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+
+            <Border x:Name="ResultCard" Style="{StaticResource Card}" Margin="0,14,0,0" Visibility="Collapsed">
+                <StackPanel>
+                    <TextBlock Text="Résultat du dernier nettoyage" Style="{StaticResource SectionTitle}"/>
+                    <ItemsControl x:Name="ResultList" Margin="0,12,0,0">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding Categorie}" FontSize="13"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding FreedLabel}" FontWeight="Bold" Foreground="{StaticResource Success}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

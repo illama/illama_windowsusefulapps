@@ -1,0 +1,103 @@
+<UserControl x:Class="SystemManagerPro.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="UserControl_Loaded">
+    <ScrollViewer Style="{StaticResource CleanScrollViewer}">
+        <StackPanel Margin="32,26,32,26">
+            <TextBlock Text="Paramètres" Style="{StaticResource PageTitle}"/>
+            <TextBlock Text="Comportement de l'application au démarrage et à la fermeture." Style="{StaticResource PageSubtitle}"/>
+
+            <Border Style="{StaticResource Card}" Margin="0,20,0,0">
+                <StackPanel>
+                    <TextBlock Text="Démarrage" Style="{StaticResource SectionTitle}"/>
+
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Démarrer avec Windows" FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock Text="Ajoute l'application au démarrage automatique de votre session." Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="StartWithWindowsToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                  VerticalAlignment="Center" Click="StartWithWindowsToggle_Click"/>
+                    </Grid>
+
+                    <Separator Margin="0,16" Background="{StaticResource BorderBrush2}" Height="1"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Démarrer réduite" FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock Text="L'application s'ouvre directement en fenêtre réduite." Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <CheckBox x:Name="StartMinimizedToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                  VerticalAlignment="Center" Click="StartMinimizedToggle_Click"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                <StackPanel>
+                    <TextBlock Text="Fermeture" Style="{StaticResource SectionTitle}"/>
+
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Réduire dans la barre d'état système à la fermeture" FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock Text="Le bouton ✕ masque la fenêtre au lieu de quitter ; l'application reste accessible depuis l'icône près de l'horloge." Style="{StaticResource Muted}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <CheckBox x:Name="CloseToTrayToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                  VerticalAlignment="Center" Click="CloseToTrayToggle_Click"/>
+                    </Grid>
+
+                    <Separator Margin="0,16" Background="{StaticResource BorderBrush2}" Height="1"/>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Quitter complètement" FontSize="13" FontWeight="SemiBold"/>
+                            <TextBlock Text="Ferme l'application et retire l'icône de la zone de notification." Style="{StaticResource Muted}" Margin="0,2,0,0"/>
+                        </StackPanel>
+                        <Button Grid.Column="1" Content="Quitter" Style="{StaticResource BtnDanger}" Click="Quit_Click"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Mises à jour" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
+                        <Button x:Name="CheckUpdateBtn" Grid.Column="1" Content="🔄  Vérifier les mises à jour"
+                                Style="{StaticResource BtnBase}" Click="CheckUpdate_Click"/>
+                    </Grid>
+                    <TextBlock x:Name="UpdateStatusText" Text="Version actuelle à jour." Style="{StaticResource Muted}" Margin="0,14,0,0" TextWrapping="Wrap"/>
+                    <Button x:Name="InstallUpdateBtn" Content="⬇️  Télécharger et installer la mise à jour" Style="{StaticResource BtnPrimary}"
+                            HorizontalAlignment="Left" Margin="0,12,0,0" Click="InstallUpdate_Click" Visibility="Collapsed"/>
+                    <ProgressBar x:Name="DownloadProgress" Margin="0,10,0,0" Visibility="Collapsed" MaxWidth="320" HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                <StackPanel>
+                    <TextBlock Text="À propos" Style="{StaticResource SectionTitle}"/>
+                    <StackPanel Margin="0,14,0,0" x:Name="AboutStack"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

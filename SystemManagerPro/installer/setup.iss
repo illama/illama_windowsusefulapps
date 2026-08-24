@@ -52,7 +52,10 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: none; ValueName: "GestionnaireSystemePro"; Flags: deletevalue uninsdeletevalue
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "Lancer {#MyAppName}"; Flags: nowait postinstall skipifsilent
+; "shellexec" est indispensable ici : l'exécutable a son propre manifeste requireAdministrator,
+; et un CreateProcess direct (comportement par défaut d'Inno Setup) échoue avec l'erreur 740
+; "L'opération demandée nécessite une élévation". ShellExecute gère correctement ce cas.
+Filename: "{app}\{#MyAppExeName}"; Description: "Lancer {#MyAppName}"; Flags: nowait postinstall skipifsilent shellexec
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{userappdata}\GestionnaireSystemePro"

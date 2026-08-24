@@ -1,50 +1,73 @@
-GESTIONNAIRE SYSTÈME PRO — v2.0
+GESTIONNAIRE SYSTÈME PRO — v2.1
 ================================
 
-Application graphique (WPF/.NET 8, autonome — aucune installation requise)
-qui remplace le script PowerShell illama_windowsusefulapps_v.1.0.4.ps1.
+Application graphique (WPF/.NET 8) qui remplace le script PowerShell
+illama_windowsusefulapps_v.1.0.4.ps1.
+Dépôt : https://github.com/illama/illama_windowsusefulapps
 
-LANCEMENT
----------
-Double-cliquez sur GestionnaireSystemePro.exe
-Windows affichera une invite UAC (droits administrateur) : cliquez sur "Oui".
-C'est un exécutable autonome (~155 Mo) : le runtime .NET est embarqué, rien
-d'autre à installer.
+DEUX FAÇONS DE L'INSTALLER
+---------------------------
+1. Installateur (recommandé) : SystemManagerPro/installer-output/GestionnaireSystemeProSetup.exe
+   → assistant d'installation classique, raccourcis Menu Démarrer/Bureau,
+     désinstalleur propre dans "Applications installées".
+   → aussi disponible en téléchargement sur la page Releases du dépôt GitHub.
+
+2. Exécutable autonome : GestionnaireSystemePro.exe à la racine (~155 Mo)
+   → aucune installation, se lance directement (rien dans le menu Démarrer).
+
+Dans les deux cas, Windows affichera une invite UAC (droits administrateur) au
+lancement : cliquez sur "Oui". L'app est autonome, aucun autre logiciel requis.
 
 FONCTIONNALITÉS
 ----------------
-Reprises du script d'origine, avec interface graphique :
+Reprises du script d'origine :
   • Tableau de bord — CPU, RAM, disques, uptime en temps réel
-  • Démarrage — applications au démarrage (registre, tâches planifiées,
-    dossier Démarrage), activer/désactiver/ajouter, recherche
-  • Services Windows — liste, démarrer/arrêter/redémarrer, changer le type
-    de démarrage, analyse des services gourmands en ressources
+  • Démarrage — applications au démarrage, activer/désactiver/ajouter, recherche
+  • Services Windows — démarrer/arrêter/redémarrer, type de démarrage, analyse
   • Langues — conserver certaines langues et supprimer les autres
   • Clavier — remapping de touches (Scancode Map), interface visuelle
 
 Nouvelles fonctionnalités :
-  • Nettoyage — scan et suppression des fichiers temporaires, cache Windows
-    Update, Prefetch, caches navigateurs, corbeille — avec taille estimée
-  • Réseau — liste des adaptateurs, vider le cache DNS, réinitialiser
-    Winsock/TCP-IP, renouveler l'IP, test de ping
-  • Programmes installés — liste et désinstallation des applications
-  • Réglages rapides — extensions de fichiers, fichiers cachés, thème
-    sombre, recherche Bing, suggestions Windows, Game Bar, notifications,
-    télémétrie — chaque réglage est un interrupteur
-  • Point de restauration système — en un clic, avant toute manipulation
-  • Journal d'activité — historique de toutes les actions, exportable
+  • Nettoyage — temp/cache Update/Prefetch/caches navigateurs/corbeille
+  • Réseau — adaptateurs, flush DNS, reset Winsock/TCP-IP, renew IP, ping
+  • Programmes installés — liste et désinstallation
+  • Réglages rapides — thème sombre, extensions de fichiers, anti-pub, etc.
+  • Point de restauration système en un clic
+  • Journal d'activité exportable
+
+Paramètres (nouveau) :
+  • Démarrer avec Windows (case à cocher dans Paramètres)
+  • Démarrer réduite (fenêtre minimisée au lancement)
+  • Réduire dans la barre d'état système à la fermeture — le bouton ✕ masque
+    la fenêtre au lieu de quitter ; ré-ouvrez via l'icône près de l'horloge
+    (double-clic ou clic gauche = ouvrir, clic droit = menu Ouvrir/Quitter)
+  • Vérification des mises à jour — bouton "Vérifier les mises à jour" qui
+    compare avec la dernière Release GitHub et propose de télécharger et
+    lancer le nouvel installateur automatiquement
 
 FICHIERS
 --------
-  GestionnaireSystemePro.exe        → l'application (à lancer)
-  SystemManagerPro\                 → code source du projet (C#/WPF)
-  illama_windowsusefulapps_v.1.0.4.ps1/.bat → ancien script, conservé pour
-                                       référence ; peut être supprimé une
-                                       fois que la nouvelle application vous
-                                       convient.
+  GestionnaireSystemePro.exe            → version autonome (à lancer directement)
+  SystemManagerPro/installer-output/    → l'installateur (GestionnaireSystemeProSetup.exe)
+  SystemManagerPro/                     → code source du projet (C#/WPF)
+  illama_windowsusefulapps_v.1.0.4.ps1/.bat → ancien script, conservé pour référence
 
-Pour recompiler après modification du code source :
+RECOMPILER / PUBLIER UNE NOUVELLE VERSION
+-------------------------------------------
   cd SystemManagerPro
+
+  # Exécutable autonome (un seul fichier) :
   dotnet publish -c Release -r win-x64 --self-contained true ^
-    -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true ^
-    -o publish
+    -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish
+
+  # Payload pour l'installateur (multi-fichiers, plus fiable) :
+  dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o publish-installer
+
+  # Compiler l'installateur (Inno Setup doit être installé) :
+  & "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" installer\setup.iss
+
+  # Publier une nouvelle Release GitHub (met à jour la fonction de vérification
+  # de mise à jour de l'app — pense à incrémenter <Version> dans le .csproj et
+  # #define MyAppVersion dans installer\setup.iss) :
+  git tag vX.Y.Z && git push origin vX.Y.Z
+  gh release create vX.Y.Z "installer-output\GestionnaireSystemeProSetup.exe" --title "..." --notes "..."

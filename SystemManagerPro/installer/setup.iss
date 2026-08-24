@@ -2,7 +2,7 @@
 ; Compilation : "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\setup.iss
 
 #define MyAppName "Gestionnaire Système Pro"
-#define MyAppVersion "2.1.0"
+#define MyAppVersion "2.1.1"
 #define MyAppPublisher "illama"
 #define MyAppURL "https://github.com/illama/illama_windowsusefulapps"
 #define MyAppExeName "SystemManagerPro.exe"

@@ -2,7 +2,7 @@
 ; Compilation : "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\setup.iss
 
 #define MyAppName "Gestionnaire Système Pro"
-#define MyAppVersion "2.2.1"
+#define MyAppVersion "2.2.2"
 #define MyAppPublisher "illama"
 #define MyAppURL "https://github.com/illama/illama_windowsusefulapps"
 #define MyAppExeName "SystemManagerPro.exe"
@@ -59,3 +59,7 @@ Filename: "{app}\{#MyAppExeName}"; Description: "Lancer {#MyAppName}"; Flags: no
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{userappdata}\GestionnaireSystemePro"
+
+[UninstallRun]
+; Retire la tâche planifiée "Démarrer avec Windows" si l'utilisateur l'avait activée.
+Filename: "{sys}\schtasks.exe"; Parameters: "/Delete /TN ""GestionnaireSystemePro_Autostart"" /F"; Flags: runhidden; RunOnceId: "RemoveAutostartTask"

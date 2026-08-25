@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Collections.Specialized;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -23,9 +24,23 @@ public partial class MainWindow : Window
     private List<CommandItem> _paletteFiltered = new();
     private int _paletteIndex;
 
+    private Dictionary<string, RadioButton> _gatedButtons = new();
+    private string _lastRequestedKey = "dashboard";
+    private LicenseActivationView? _lockedView;
+    private RadioButton? _adminNavRadio;
+
     public MainWindow()
     {
         InitializeComponent();
+
+        _gatedButtons = new Dictionary<string, RadioButton>
+        {
+            ["services"] = NavServices, ["processes"] = NavProcesses, ["language"] = NavLanguage,
+            ["keyboard"] = NavKeyboard, ["installer"] = NavInstaller, ["cleanup"] = NavCleanup,
+            ["network"] = NavNetwork, ["uninstaller"] = NavUninstaller, ["advanced"] = NavAdvanced,
+            ["tweaks"] = NavTweaks,
+        };
+        RefreshLockIndicators();
 
         UserLabel.Text = $"{Environment.UserName} · {Environment.MachineName}";
         if (!SystemInfoService.IsAdministrator())
@@ -81,6 +96,14 @@ public partial class MainWindow : Window
     {
         _forceClose = true;
         Close();
+    }
+
+    /// <summary>À appeler après une connexion/déconnexion administrateur déclenchée depuis une autre
+    /// page (ex : Paramètres), pour que la barre latérale et les cadenas se mettent à jour.</summary>
+    public void RefreshAfterAdminChange()
+    {
+        SyncAdminNavItem();
+        RefreshLockIndicators();
     }
 
     private async Task CheckUpdatesInBackgroundAsync()
@@ -163,6 +186,16 @@ public partial class MainWindow : Window
 
     private void NavigateTo(string key)
     {
+        if (key != "administration") _lastRequestedKey = key;
+
+        if (LicenseService.PaidFeatureKeys.Contains(key) && !LicenseService.Instance.IsFeatureUnlocked(key))
+        {
+            _lockedView ??= CreateLockedView();
+            _lockedView.SetContext(FeatureLabel(key));
+            AnimateContentSwap(_lockedView);
+            return;
+        }
+
         if (!_views.TryGetValue(key, out var view))
         {
             view = key switch
@@ -181,11 +214,85 @@ public partial class MainWindow : Window
                 "tweaks" => new TweaksView(),
                 "logs" => new LogsView(),
                 "settings" => new SettingsView(),
+                "administration" => CreateAdministrationView(),
                 _ => new DashboardView(),
             };
             _views[key] = view;
         }
         AnimateContentSwap(view);
+    }
+
+    // ===================== Licence / administration =====================
+
+    private static string FeatureLabel(string key) => key switch
+    {
+        "services" => "Services",
+        "processes" => "Processus",
+        "language" => "Langues",
+        "keyboard" => "Clavier",
+        "installer" => "Installateur",
+        "cleanup" => "Nettoyage",
+        "network" => "Réseau",
+        "uninstaller" => "Programmes",
+        "advanced" => "Avancé",
+        "tweaks" => "Réglages rapides",
+        _ => key,
+    };
+
+    /// <summary>Ajoute/retire un petit 🔒 sur les entrées de navigation payantes selon l'état de licence actuel.</summary>
+    private void RefreshLockIndicators()
+    {
+        foreach (var (key, rb) in _gatedButtons)
+            rb.Content = LicenseService.Instance.IsFeatureUnlocked(key) ? FeatureLabel(key) : FeatureLabel(key) + "  🔒";
+    }
+
+    private LicenseActivationView CreateLockedView()
+    {
+        var view = new LicenseActivationView();
+        view.Unlocked += () =>
+        {
+            RefreshLockIndicators();
+            SyncAdminNavItem();
+            NavigateTo(_lastRequestedKey);
+        };
+        return view;
+    }
+
+    private AdministrationView CreateAdministrationView()
+    {
+        var view = new AdministrationView();
+        view.LoggedOut += () =>
+        {
+            SyncAdminNavItem();
+            RefreshLockIndicators();
+            NavDashboard.IsChecked = true;
+        };
+        return view;
+    }
+
+    /// <summary>Fait apparaître/disparaître l'entrée "Administration" dans la barre latérale
+    /// selon que la session admin en cours est active ou non.</summary>
+    private void SyncAdminNavItem()
+    {
+        bool isAdmin = LicenseService.Instance.IsAdminSession;
+        if (isAdmin && _adminNavRadio == null)
+        {
+            _adminNavRadio = new RadioButton
+            {
+                Style = (Style)FindResource("NavItem"), GroupName = "Nav", Tag = "🛡️", Content = "Administration",
+            };
+            AutomationProperties.SetAutomationId(_adminNavRadio, "NavAdministration");
+            _adminNavRadio.Checked += (_, _) => NavigateTo("administration");
+            int idx = NavStack.Children.IndexOf(NavSettingsRow);
+            NavStack.Children.Insert(idx + 1, _adminNavRadio);
+        }
+        else if (!isAdmin && _adminNavRadio != null)
+        {
+            if (_adminNavRadio.IsChecked == true) NavDashboard.IsChecked = true;
+            NavStack.Children.Remove(_adminNavRadio);
+            _adminNavRadio = null;
+            _views.Remove("administration");
+        }
     }
 
     /// <summary>Petit fondu enchaîné + glissement vertical entre deux pages, pour une transition moins sèche.</summary>

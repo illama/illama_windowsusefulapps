@@ -1,4 +1,4 @@
-GESTIONNAIRE SYSTÈME PRO — v2.3
+GESTIONNAIRE SYSTÈME PRO — v2.4
 ================================
 
 Application graphique (WPF/.NET 8) qui remplace le script PowerShell
@@ -34,6 +34,20 @@ Nouvelles fonctionnalités :
   • Réglages rapides — thème sombre, extensions de fichiers, anti-pub, etc.
   • Point de restauration système en un clic
   • Journal d'activité exportable
+
+Nouveau en v2.4.0 :
+  • Système de licences + compte administrateur
+    - Gratuit : Tableau de bord, Démarrage, Paramètres, Journal
+    - Payant (licence requise) : Services, Processus, Langues, Clavier,
+      Installateur, Nettoyage, Réseau, Programmes, Avancé, Réglages rapides
+    - Compte admin (identifiant maxence) : accès total + page "Administration"
+      pour générer des licences (nom client, nombre de PC informatif, durée)
+    - Activation de licence possible depuis Paramètres ou directement depuis
+      l'écran d'une fonctionnalité verrouillée
+    - ⚠️ Sans serveur central : la clé est signée (ne peut pas être fabriquée
+      sans le secret de l'app) mais rien n'empêche techniquement la réutiliser
+      sur plusieurs PC — protection honnête contre le partage casual, pas
+      contre un utilisateur technique déterminé
 
 Nouveau en v2.3.1 :
   • Corrige un lag important sur le Tableau de bord : l'appel système (WMI)

@@ -31,7 +31,7 @@
                     <TextBlock Text="Gestionnaire Système Pro" FontWeight="SemiBold" FontSize="13.5"
                                Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     <Border Background="{StaticResource BgElevated3}" CornerRadius="4" Padding="6,2" Margin="10,0,0,0">
-                        <TextBlock Text="v2.3" FontSize="10.5" Foreground="{StaticResource TextMuted}"/>
+                        <TextBlock Text="v2.4" FontSize="10.5" Foreground="{StaticResource TextMuted}"/>
                     </Border>
                 </StackPanel>
 
@@ -76,7 +76,7 @@
                         </Grid.RowDefinitions>
 
                         <ScrollViewer Style="{StaticResource CleanScrollViewer}" Grid.Row="0">
-                            <StackPanel Margin="0,14,0,0">
+                            <StackPanel x:Name="NavStack" Margin="0,14,0,0">
                                 <TextBlock Text="NAVIGATION" Style="{StaticResource Muted}" Margin="22,4,0,10" FontWeight="SemiBold"/>
 
                                 <RadioButton x:Name="NavDashboard" Style="{StaticResource NavItem}" GroupName="Nav" Tag="🏠"
@@ -111,7 +111,7 @@
 
                                 <TextBlock Text="APPLICATION" Style="{StaticResource Muted}" Margin="22,18,0,10" FontWeight="SemiBold"/>
 
-                                <Grid>
+                                <Grid x:Name="NavSettingsRow">
                                     <RadioButton x:Name="NavSettings" Style="{StaticResource NavItem}" GroupName="Nav" Tag="⚙️"
                                                  Content="Paramètres" Checked="Nav_Checked"/>
                                     <Ellipse x:Name="SettingsUpdateDot" Width="8" Height="8" Fill="{StaticResource Danger}"

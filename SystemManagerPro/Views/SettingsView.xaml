@@ -105,8 +105,32 @@
 
             <Border Style="{StaticResource Card}" Margin="0,14,0,0">
                 <StackPanel>
+                    <TextBlock Text="Licence" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="LicenseStatusText" Style="{StaticResource Muted}" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                    <Grid Margin="0,12,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="LicenseKeyBox" Style="{StaticResource Input}" MaxWidth="380" HorizontalAlignment="Left" Tag="Coller une clé de licence…"/>
+                        <Button Grid.Column="1" Content="🔓  Activer" Style="{StaticResource BtnBase}" Click="ActivateLicense_Click"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                <StackPanel>
                     <TextBlock Text="À propos" Style="{StaticResource SectionTitle}"/>
                     <StackPanel Margin="0,14,0,0" x:Name="AboutStack"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                <StackPanel>
+                    <TextBlock Text="Zone administrateur" Style="{StaticResource SectionTitle}"/>
+                    <TextBlock x:Name="AdminStatusText" Style="{StaticResource Muted}" Margin="0,10,0,12" TextWrapping="Wrap"/>
+                    <Button x:Name="AdminActionBtn" Content="🛡️  Connexion administrateur" Style="{StaticResource BtnGhost}"
+                            HorizontalAlignment="Left" Click="AdminAction_Click"/>
                 </StackPanel>
             </Border>
         </StackPanel>

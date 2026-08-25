@@ -110,6 +110,13 @@ public class InstallableApp : ObservableObject
     public string StatusLabel => Status.Length > 0 ? Status : (IsInstalled ? "Déjà installé" : "");
 }
 
+public record LicenseInfo(string CustomerName, int MaxPcs, DateTime? Expiry, string RawKey)
+{
+    public string ExpiryLabel => Expiry is { } e ? e.ToString("dd/MM/yyyy") : "Illimitée";
+}
+
+public record IssuedLicenseRecord(string CustomerName, int MaxPcs, DateTime? Expiry, string Key, DateTime IssuedAt);
+
 public class AppSettings
 {
     public bool StartWithWindows { get; set; }

@@ -26,6 +26,61 @@ public partial class SettingsView : UserControl
         CloseToTrayToggle.IsChecked = _settings.Current.CloseToTray;
         CheckUpdatesOnStartupToggle.IsChecked = _settings.Current.CheckUpdatesOnStartup;
         BuildAbout();
+        RefreshLicenseStatus();
+        RefreshAdminStatus();
+    }
+
+    private void RefreshLicenseStatus()
+    {
+        var current = LicenseService.Instance.GetCurrentLicense();
+        LicenseStatusText.Text = current != null
+            ? $"Licence active : « {current.CustomerName} », expire le {current.ExpiryLabel}."
+            : "Aucune licence active — Tableau de bord, Démarrage, Paramètres et Journal restent accessibles gratuitement.";
+    }
+
+    private void ActivateLicense_Click(object sender, RoutedEventArgs e)
+    {
+        var key = LicenseKeyBox.Text.Trim();
+        if (string.IsNullOrEmpty(key))
+        {
+            LogService.Instance.Log("Entrez une clé de licence.", LogLevel.Warning);
+            return;
+        }
+
+        var (ok, message) = LicenseService.Instance.Activate(key);
+        LogService.Instance.Log(message, ok ? LogLevel.Success : LogLevel.Warning);
+        if (ok)
+        {
+            LicenseKeyBox.Text = "";
+            RefreshLicenseStatus();
+            (Window.GetWindow(this) as MainWindow)?.RefreshAfterAdminChange();
+        }
+    }
+
+    private void RefreshAdminStatus()
+    {
+        bool isAdmin = LicenseService.Instance.IsAdminSession;
+        AdminStatusText.Text = isAdmin
+            ? "Session administrateur active : toutes les fonctionnalités sont débloquées sur cet appareil."
+            : "Connecte-toi avec le compte administrateur pour tout débloquer et générer des licences.";
+        AdminActionBtn.Content = isAdmin ? "🚪  Se déconnecter" : "🛡️  Connexion administrateur";
+    }
+
+    private void AdminAction_Click(object sender, RoutedEventArgs e)
+    {
+        var owner = Window.GetWindow(this);
+        if (LicenseService.Instance.IsAdminSession)
+        {
+            LicenseService.Instance.AdminLogout();
+            LogService.Instance.Log("Déconnexion administrateur.", LogLevel.Info);
+        }
+        else if (AdminLoginDialog.ShowLogin(owner))
+        {
+            LogService.Instance.Log("Connexion administrateur réussie.", LogLevel.Success);
+        }
+        RefreshAdminStatus();
+        RefreshLicenseStatus();
+        (owner as MainWindow)?.RefreshAfterAdminChange();
     }
 
     private void BuildAbout()

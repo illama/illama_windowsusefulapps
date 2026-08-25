@@ -20,19 +20,22 @@ public partial class DashboardView : UserControl, IActivatable
     private readonly Queue<double> _cpuHistory = new();
     private readonly Queue<double> _ramHistory = new();
     private DispatcherTimer? _timer;
+    private bool _isRefreshing;
+    private SystemSnapshot? _lastSnapshot;
 
     public DashboardView()
     {
         InitializeComponent();
     }
 
-    public void OnActivated() => Refresh();
+    public void OnActivated() => _ = Refresh();
 
-    private void UserControl_Loaded(object sender, RoutedEventArgs e)
+    private async void UserControl_Loaded(object sender, RoutedEventArgs e)
     {
-        Refresh();
+        await Refresh();
+        PlayEntranceAnimation();
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
-        _timer.Tick += (_, _) => Refresh();
+        _timer.Tick += async (_, _) => await Refresh();
         _timer.Start();
     }
 
@@ -42,12 +45,47 @@ public partial class DashboardView : UserControl, IActivatable
         _timer = null;
     }
 
-    private void Refresh()
+    /// <summary>Petite entrée en fondu des cartes au premier affichage de la page.
+    /// N'anime QUE l'opacité : le style CardHover pose déjà son propre RenderTransform
+    /// (un ScaleTransform, pour l'effet de survol) — le remplacer ici par un autre transform
+    /// cassait l'animation de survol (exception à chaque passage de souris sur une carte).</summary>
+    private void PlayEntranceAnimation()
     {
-        SystemSnapshot snap;
-        try { snap = _sysInfo.GetSnapshot(); }
-        catch { return; }
+        var cards = new UIElement[] { CpuCard, RamCard, DiskCard, UptimeCard };
+        for (int i = 0; i < cards.Length; i++)
+        {
+            var card = cards[i];
+            card.Opacity = 0;
+            var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(280))
+            {
+                BeginTime = TimeSpan.FromMilliseconds(i * 60),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut },
+            };
+            card.BeginAnimation(OpacityProperty, fade);
+        }
+    }
 
+    /// <summary>Interroge le système (WMI, disques) sur un thread d'arrière-plan puis met à jour
+    /// l'affichage — c'est l'appel WMI synchrone directement sur le thread UI qui causait les
+    /// ralentissements ressentis sur cette page.</summary>
+    private async Task Refresh()
+    {
+        if (_isRefreshing) return; // évite les rafraîchissements qui se chevauchent si un appel traîne
+        _isRefreshing = true;
+        try
+        {
+            SystemSnapshot snap;
+            try { snap = await Task.Run(() => _sysInfo.GetSnapshot()); }
+            catch { return; }
+
+            _lastSnapshot = snap;
+            ApplySnapshot(snap);
+        }
+        finally { _isRefreshing = false; }
+    }
+
+    private void ApplySnapshot(SystemSnapshot snap)
+    {
         CpuValue.Text = $"{snap.CpuPercent:0}%";
         AnimateBar(CpuBar, snap.CpuPercent);
         PushHistory(_cpuHistory, snap.CpuPercent);
@@ -167,7 +205,7 @@ public partial class DashboardView : UserControl, IActivatable
         return $"{ts.Minutes} min";
     }
 
-    private void Refresh_Click(object sender, RoutedEventArgs e) => Refresh();
+    private async void Refresh_Click(object sender, RoutedEventArgs e) => await Refresh();
 
     private void FlushDns_Click(object sender, RoutedEventArgs e)
     {
@@ -181,5 +219,36 @@ public partial class DashboardView : UserControl, IActivatable
     {
         var (ok, message) = _tweaks.CreateRestorePoint("Gestionnaire Système Pro - Point manuel");
         LogService.Instance.Log(message, ok ? LogLevel.Success : LogLevel.Error);
+    }
+
+    private void CopyReport_Click(object sender, RoutedEventArgs e)
+    {
+        if (_lastSnapshot is not { } snap)
+        {
+            LogService.Instance.Log("Aucune donnée à copier pour le moment.", LogLevel.Warning);
+            return;
+        }
+
+        var report = $"""
+            Rapport système — {DateTime.Now:dd/MM/yyyy HH:mm}
+            Ordinateur : {snap.ComputerName}
+            Utilisateur : {snap.UserName}
+            Système : {snap.OsCaption}
+            Droits admin : {(snap.IsAdmin ? "Oui" : "Non")}
+            Disponibilité : {FormatUptime(snap.Uptime)}
+            CPU : {snap.CpuPercent:0}%
+            Mémoire : {snap.RamPercent:0}% ({snap.RamUsedGb:0.#} Go / {snap.RamTotalGb:0.#} Go)
+            {string.Join('\n', snap.Disks.Select(d => $"Disque {d.Label} : {d.Percent:0}% ({d.UsedGb:0.#} Go / {d.TotalGb:0.#} Go)"))}
+            """;
+
+        try
+        {
+            Clipboard.SetText(report);
+            LogService.Instance.Log("Rapport système copié dans le presse-papiers.", LogLevel.Success);
+        }
+        catch (Exception ex)
+        {
+            LogService.Instance.Log("Échec de la copie : " + ex.Message, LogLevel.Error);
+        }
     }
 }

@@ -12,6 +12,7 @@ public partial class AdvancedView : UserControl, IActivatable
     private readonly EnvironmentVariableService _envService = new();
     private readonly HostsFileService _hostsService = new();
     private readonly PowerPlanService _powerService = new();
+    private readonly FirewallService _firewallService = new();
 
     private List<string> _hostsLines = new();
     private bool _hostsDirty;
@@ -35,7 +36,8 @@ public partial class AdvancedView : UserControl, IActivatable
     {
         if (TabEnv.IsChecked == true) RefreshEnvVars();
         else if (TabHosts.IsChecked == true) RefreshHosts();
-        else RefreshPower();
+        else if (TabPower.IsChecked == true) RefreshPower();
+        else RefreshFirewall();
     }
 
     private void Tab_Checked(object sender, RoutedEventArgs e)
@@ -44,6 +46,7 @@ public partial class AdvancedView : UserControl, IActivatable
         EnvPanel.Visibility = TabEnv.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         HostsPanel.Visibility = TabHosts.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         PowerPanel.Visibility = TabPower.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
+        FirewallPanel.Visibility = TabFirewall.IsChecked == true ? Visibility.Visible : Visibility.Collapsed;
         RefreshCurrentTab();
     }
 
@@ -265,4 +268,55 @@ public partial class AdvancedView : UserControl, IActivatable
     }
 
     private void RefreshPower_Click(object sender, RoutedEventArgs e) => RefreshPower();
+
+    // ===================== Pare-feu =====================
+
+    private void RefreshFirewall()
+    {
+        try
+        {
+            var states = _firewallService.GetStates();
+            FirewallList.Items.Clear();
+            foreach (var state in states)
+            {
+                var row = new Border
+                {
+                    Padding = new Thickness(14, 12, 14, 12), Margin = new Thickness(0, 0, 0, 8),
+                    CornerRadius = new CornerRadius(8), Background = (Brush)FindResource("BgElevated2"),
+                };
+                var grid = new Grid();
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+                var left = new StackPanel();
+                left.Children.Add(new TextBlock { Text = $"Réseau {state.Profile}", FontSize = 13, FontWeight = FontWeights.SemiBold });
+                left.Children.Add(new TextBlock
+                {
+                    Text = state.Enabled ? "Protégé" : "Non protégé",
+                    Style = (Style)FindResource("Muted"),
+                    Foreground = state.Enabled ? (Brush)FindResource("Success") : (Brush)FindResource("Danger"),
+                    Margin = new Thickness(0, 2, 0, 0),
+                });
+                grid.Children.Add(left);
+
+                var toggle = new CheckBox { Style = (Style)FindResource("ToggleSwitch"), IsChecked = state.Enabled, VerticalAlignment = VerticalAlignment.Center };
+                toggle.Click += (_, _) =>
+                {
+                    bool desired = toggle.IsChecked == true;
+                    var (ok, message) = _firewallService.SetProfile(state.Profile, desired);
+                    LogService.Instance.Log(message, ok ? LogLevel.Success : LogLevel.Error);
+                    if (!ok) toggle.IsChecked = state.Enabled; // annule visuellement si l'appel a échoué
+                    else RefreshFirewall();
+                };
+                Grid.SetColumn(toggle, 1);
+                grid.Children.Add(toggle);
+
+                row.Child = grid;
+                FirewallList.Items.Add(row);
+            }
+        }
+        catch (Exception ex) { LogService.Instance.Log("Erreur lors de la lecture du pare-feu : " + ex.Message, LogLevel.Error); }
+    }
+
+    private void RefreshFirewall_Click(object sender, RoutedEventArgs e) => RefreshFirewall();
 }

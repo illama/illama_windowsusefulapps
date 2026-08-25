@@ -18,9 +18,17 @@ public record SystemSnapshot(
 
 public record DiskSnapshot(string Label, double UsedGb, double TotalGb, double Percent);
 
-/// <summary>Récupère les informations système (CPU, RAM, disques, uptime...) affichées sur le tableau de bord.</summary>
-public class SystemInfoService
+/// <summary>Récupère les informations système (CPU, RAM, disques, uptime...) affichées sur le tableau de bord.
+/// Les searchers WMI sont créés une seule fois et réutilisés (au lieu d'un par appel) : la négociation
+/// COM/WMI initiale est le poste de coût principal, la répéter à chaque rafraîchissement causait les
+/// à-coups ressentis sur le Tableau de bord.</summary>
+public class SystemInfoService : IDisposable
 {
+    private readonly ManagementObjectSearcher _cpuSearcher =
+        new("SELECT LoadPercentage FROM Win32_Processor");
+    private readonly ManagementObjectSearcher _osSearcher =
+        new("SELECT FreePhysicalMemory, TotalVisibleMemorySize, LastBootUpTime, Caption FROM Win32_OperatingSystem");
+
     public static bool IsAdministrator()
     {
         using var identity = WindowsIdentity.GetCurrent();
@@ -28,6 +36,8 @@ public class SystemInfoService
         return principal.IsInRole(WindowsBuiltInRole.Administrator);
     }
 
+    /// <summary>Effectue les requêtes WMI/disque (potentiellement lentes) — à appeler depuis un thread
+    /// d'arrière-plan (Task.Run), jamais directement sur le thread d'interface.</summary>
     public SystemSnapshot GetSnapshot()
     {
         double cpu = 0;
@@ -37,8 +47,7 @@ public class SystemInfoService
 
         try
         {
-            using var searcher = new ManagementObjectSearcher("SELECT LoadPercentage FROM Win32_Processor");
-            var loads = searcher.Get().Cast<ManagementObject>()
+            var loads = _cpuSearcher.Get().Cast<ManagementObject>()
                 .Select(mo => Convert.ToDouble(mo["LoadPercentage"] ?? 0d))
                 .ToList();
             if (loads.Count > 0) cpu = loads.Average();
@@ -47,9 +56,7 @@ public class SystemInfoService
 
         try
         {
-            using var searcher = new ManagementObjectSearcher(
-                "SELECT FreePhysicalMemory, TotalVisibleMemorySize, LastBootUpTime, Caption FROM Win32_OperatingSystem");
-            var os = searcher.Get().Cast<ManagementObject>().FirstOrDefault();
+            var os = _osSearcher.Get().Cast<ManagementObject>().FirstOrDefault();
             if (os != null)
             {
                 double freeKb = Convert.ToDouble(os["FreePhysicalMemory"]);
@@ -91,5 +98,11 @@ public class SystemInfoService
             Environment.UserName,
             osCaption,
             IsAdministrator());
+    }
+
+    public void Dispose()
+    {
+        _cpuSearcher.Dispose();
+        _osSearcher.Dispose();
     }
 }

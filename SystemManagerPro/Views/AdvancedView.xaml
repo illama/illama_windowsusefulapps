@@ -10,13 +10,14 @@
         </Grid.RowDefinitions>
 
         <TextBlock Text="Avancé" Style="{StaticResource PageTitle}"/>
-        <TextBlock Grid.Row="0" Text="Variables d'environnement, fichier hosts et modes d'alimentation." Style="{StaticResource PageSubtitle}" Margin="0,32,0,0"/>
+        <TextBlock Grid.Row="0" Text="Variables d'environnement, fichier hosts, alimentation et pare-feu." Style="{StaticResource PageSubtitle}" Margin="0,32,0,0"/>
 
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,18,0,0">
             <RadioButton x:Name="TabEnv" Style="{StaticResource PillTab}" GroupName="AdvTabs" Content="Variables d'environnement"
                          IsChecked="True" Checked="Tab_Checked"/>
             <RadioButton x:Name="TabHosts" Style="{StaticResource PillTab}" GroupName="AdvTabs" Content="Fichier Hosts" Checked="Tab_Checked"/>
             <RadioButton x:Name="TabPower" Style="{StaticResource PillTab}" GroupName="AdvTabs" Content="Alimentation" Checked="Tab_Checked"/>
+            <RadioButton x:Name="TabFirewall" Style="{StaticResource PillTab}" GroupName="AdvTabs" Content="Pare-feu" Checked="Tab_Checked"/>
         </StackPanel>
 
         <!-- ===== Variables d'environnement ===== -->
@@ -92,6 +93,26 @@
                             <Button Grid.Column="1" Content="🔄  Actualiser" Style="{StaticResource BtnBase}" Click="RefreshPower_Click"/>
                         </Grid>
                         <ItemsControl x:Name="PowerList" Margin="0,14,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ===== Pare-feu ===== -->
+        <ScrollViewer x:Name="FirewallPanel" Grid.Row="2" Style="{StaticResource CleanScrollViewer}" Visibility="Collapsed">
+            <StackPanel Margin="0,16,0,0">
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Pare-feu Windows Defender" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="🔄  Actualiser" Style="{StaticResource BtnBase}" Click="RefreshFirewall_Click"/>
+                        </Grid>
+                        <TextBlock Text="Un profil désactivé laisse ce type de réseau sans protection pare-feu." Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+                        <ItemsControl x:Name="FirewallList" Margin="0,14,0,0"/>
                     </StackPanel>
                 </Border>
             </StackPanel>

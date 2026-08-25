@@ -10,7 +10,7 @@
 
             <!-- Cartes statistiques -->
             <UniformGrid Columns="4" Margin="0,22,0,0">
-                <Border Style="{StaticResource CardHover}" Margin="0,0,12,0">
+                <Border x:Name="CpuCard" Style="{StaticResource CardHover}" Margin="0,0,12,0">
                     <StackPanel>
                         <TextBlock Text="PROCESSEUR" Style="{StaticResource Muted}" FontWeight="SemiBold"/>
                         <TextBlock x:Name="CpuValue" Text="—" FontSize="30" FontWeight="Bold" Margin="0,6,0,10"
@@ -21,7 +21,7 @@
                         </Border>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource CardHover}" Margin="0,0,12,0">
+                <Border x:Name="RamCard" Style="{StaticResource CardHover}" Margin="0,0,12,0">
                     <StackPanel>
                         <TextBlock Text="MÉMOIRE" Style="{StaticResource Muted}" FontWeight="SemiBold"/>
                         <TextBlock x:Name="RamValue" Text="—" FontSize="30" FontWeight="Bold" Margin="0,6,0,10"/>
@@ -32,7 +32,7 @@
                         </Border>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource CardHover}" Margin="0,0,12,0">
+                <Border x:Name="DiskCard" Style="{StaticResource CardHover}" Margin="0,0,12,0">
                     <StackPanel>
                         <TextBlock Text="DISQUE SYSTÈME" Style="{StaticResource Muted}" FontWeight="SemiBold"/>
                         <TextBlock x:Name="DiskValue" Text="—" FontSize="30" FontWeight="Bold" Margin="0,6,0,10"/>
@@ -40,7 +40,7 @@
                         <TextBlock x:Name="DiskDetail" Style="{StaticResource Muted}" Margin="0,6,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource CardHover}">
+                <Border x:Name="UptimeCard" Style="{StaticResource CardHover}">
                     <StackPanel>
                         <TextBlock Text="DISPONIBILITÉ" Style="{StaticResource Muted}" FontWeight="SemiBold"/>
                         <TextBlock x:Name="UptimeValue" Text="—" FontSize="22" FontWeight="Bold" Margin="0,6,0,10"/>
@@ -80,6 +80,7 @@
                     <WrapPanel Margin="0,14,0,0">
                         <Button Content="🧹  Vider le cache DNS" Style="{StaticResource BtnBase}" Margin="0,0,10,10" Click="FlushDns_Click"/>
                         <Button Content="🛡️  Créer un point de restauration" Style="{StaticResource BtnBase}" Margin="0,0,10,10" Click="RestorePoint_Click"/>
+                        <Button Content="📋  Copier le rapport système" Style="{StaticResource BtnBase}" Margin="0,0,10,10" Click="CopyReport_Click"/>
                         <Button Content="🔄  Rafraîchir" Style="{StaticResource BtnPrimary}" Margin="0,0,10,10" Click="Refresh_Click"/>
                     </WrapPanel>
                 </StackPanel>

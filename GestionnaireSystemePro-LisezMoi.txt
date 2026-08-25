@@ -35,6 +35,16 @@ Nouvelles fonctionnalités :
   • Point de restauration système en un clic
   • Journal d'activité exportable
 
+Nouveau en v2.3.1 :
+  • Corrige un lag important sur le Tableau de bord : l'appel système (WMI)
+    bloquait l'interface, et une animation entrait en conflit avec l'effet
+    de survol des cartes (provoquant une erreur à chaque passage de souris)
+  • Corrige un texte coupé/superposé dans Services (barre de sélection)
+  • Section Avancé : nouvel onglet Pare-feu (activer/désactiver par profil
+    réseau : Domaine, Privé, Public)
+  • Optimisations : rafraîchissements du Tableau de bord et des Processus
+    déplacés hors du thread d'interface, requêtes WMI réutilisées
+
 Nouveau en v2.3 :
   • Installateur — installe en un clic navigateurs (Chrome, Firefox, Brave,
     Opera GX...), launchers de jeux (Steam, Epic Games, EA App, Battle.net,

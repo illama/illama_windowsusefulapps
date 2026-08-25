@@ -13,20 +13,21 @@ public partial class ProcessesView : UserControl, IActivatable
     private readonly ProcessManagerService _service = new();
     private List<ProcessRow> _all = new();
     private DispatcherTimer? _timer;
+    private bool _isRefreshing;
 
     public ProcessesView()
     {
         InitializeComponent();
     }
 
-    public void OnActivated() => Refresh();
+    public void OnActivated() => _ = Refresh();
 
-    private void UserControl_Loaded(object sender, RoutedEventArgs e)
+    private async void UserControl_Loaded(object sender, RoutedEventArgs e)
     {
-        Refresh(); // premier appel : établit la ligne de base pour le calcul du CPU%
-        Refresh(); // second appel immédiat : donne un premier pourcentage exploitable
+        await Refresh(); // premier appel : établit la ligne de base pour le calcul du CPU%
+        await Refresh(); // second appel immédiat : donne un premier pourcentage exploitable
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
-        _timer.Tick += (_, _) => Refresh();
+        _timer.Tick += async (_, _) => await Refresh();
         _timer.Start();
     }
 
@@ -36,11 +37,19 @@ public partial class ProcessesView : UserControl, IActivatable
         _timer = null;
     }
 
-    private void Refresh()
+    /// <summary>L'énumération de tous les processus (CPU/mémoire par processus) est assez coûteuse :
+    /// on l'exécute sur un thread d'arrière-plan pour ne jamais geler l'interface.</summary>
+    private async Task Refresh()
     {
-        try { _all = _service.GetSnapshot(); }
-        catch { return; }
-        ApplyFilter();
+        if (_isRefreshing) return;
+        _isRefreshing = true;
+        try
+        {
+            try { _all = await Task.Run(() => _service.GetSnapshot()); }
+            catch { return; }
+            ApplyFilter();
+        }
+        finally { _isRefreshing = false; }
     }
 
     private void ApplyFilter()
@@ -59,9 +68,9 @@ public partial class ProcessesView : UserControl, IActivatable
     }
 
     private void SearchBox_TextChanged(object sender, TextChangedEventArgs e) => ApplyFilter();
-    private void Refresh_Click(object sender, RoutedEventArgs e) => Refresh();
+    private async void Refresh_Click(object sender, RoutedEventArgs e) => await Refresh();
 
-    private void EndTask_Click(object sender, RoutedEventArgs e)
+    private async void EndTask_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Button btn || btn.DataContext is not ProcessRow row) return;
 
@@ -73,6 +82,6 @@ public partial class ProcessesView : UserControl, IActivatable
 
         var (ok, message) = _service.EndTask(row.Pid);
         LogService.Instance.Log(message, ok ? LogLevel.Success : LogLevel.Error);
-        Refresh();
+        await Refresh();
     }
 }

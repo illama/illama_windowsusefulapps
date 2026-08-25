@@ -90,6 +90,26 @@ public class LogEntry
     public string TimeLabel => Timestamp.ToString("HH:mm:ss");
 }
 
+public class InstallableApp : ObservableObject
+{
+    public string WingetId { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string Category { get; set; } = "";
+    public string Description { get; set; } = "";
+    public string Icon { get; set; } = "";
+
+    private bool _isChecked;
+    public bool IsChecked { get => _isChecked; set => Set(ref _isChecked, value); }
+
+    private bool _isInstalled;
+    public bool IsInstalled { get => _isInstalled; set { Set(ref _isInstalled, value); Raise(nameof(StatusLabel)); } }
+
+    private string _status = "";
+    public string Status { get => _status; set { Set(ref _status, value); Raise(nameof(StatusLabel)); } }
+
+    public string StatusLabel => Status.Length > 0 ? Status : (IsInstalled ? "Déjà installé" : "");
+}
+
 public class AppSettings
 {
     public bool StartWithWindows { get; set; }

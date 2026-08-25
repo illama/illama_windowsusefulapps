@@ -1,4 +1,4 @@
-GESTIONNAIRE SYSTÈME PRO — v2.2
+GESTIONNAIRE SYSTÈME PRO — v2.3
 ================================
 
 Application graphique (WPF/.NET 8) qui remplace le script PowerShell
@@ -34,6 +34,14 @@ Nouvelles fonctionnalités :
   • Réglages rapides — thème sombre, extensions de fichiers, anti-pub, etc.
   • Point de restauration système en un clic
   • Journal d'activité exportable
+
+Nouveau en v2.3 :
+  • Installateur — installe en un clic navigateurs (Chrome, Firefox, Brave,
+    Opera GX...), launchers de jeux (Steam, Epic Games, EA App, Battle.net,
+    Ubisoft Connect, GOG Galaxy, Discord, OBS...), utilitaires (7-Zip,
+    PowerToys, Notepad++...) et plus, via winget (Windows Package Manager,
+    déjà présent sur Windows 10/11) — recherche, catégories, détection des
+    applications déjà installées, installation par lot avec suivi en direct
 
 Nouveau en v2.2 :
   • Processus — mini gestionnaire des tâches (CPU/mémoire en direct, forcer l'arrêt)

@@ -31,7 +31,7 @@
                     <TextBlock Text="Gestionnaire Système Pro" FontWeight="SemiBold" FontSize="13.5"
                                Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     <Border Background="{StaticResource BgElevated3}" CornerRadius="4" Padding="6,2" Margin="10,0,0,0">
-                        <TextBlock Text="v2.2" FontSize="10.5" Foreground="{StaticResource TextMuted}"/>
+                        <TextBlock Text="v2.3" FontSize="10.5" Foreground="{StaticResource TextMuted}"/>
                     </Border>
                 </StackPanel>
 
@@ -94,6 +94,8 @@
 
                                 <TextBlock Text="OUTILS" Style="{StaticResource Muted}" Margin="22,18,0,10" FontWeight="SemiBold"/>
 
+                                <RadioButton x:Name="NavInstaller" Style="{StaticResource NavItem}" GroupName="Nav" Tag="📦"
+                                             Content="Installateur" Checked="Nav_Checked"/>
                                 <RadioButton x:Name="NavCleanup" Style="{StaticResource NavItem}" GroupName="Nav" Tag="🧹"
                                              Content="Nettoyage" Checked="Nav_Checked"/>
                                 <RadioButton x:Name="NavNetwork" Style="{StaticResource NavItem}" GroupName="Nav" Tag="📡"

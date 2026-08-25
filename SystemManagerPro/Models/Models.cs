@@ -95,6 +95,7 @@ public class AppSettings
     public bool StartWithWindows { get; set; }
     public bool StartMinimized { get; set; }
     public bool CloseToTray { get; set; } = true;
+    public bool CheckUpdatesOnStartup { get; set; } = true;
 }
 
 public class QuickTweak : ObservableObject

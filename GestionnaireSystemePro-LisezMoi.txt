@@ -1,4 +1,4 @@
-GESTIONNAIRE SYSTÈME PRO — v2.1
+GESTIONNAIRE SYSTÈME PRO — v2.2
 ================================
 
 Application graphique (WPF/.NET 8) qui remplace le script PowerShell
@@ -35,7 +35,20 @@ Nouvelles fonctionnalités :
   • Point de restauration système en un clic
   • Journal d'activité exportable
 
-Paramètres (nouveau) :
+Nouveau en v2.2 :
+  • Processus — mini gestionnaire des tâches (CPU/mémoire en direct, forcer l'arrêt)
+  • Avancé — Variables d'environnement (utilisateur/système), éditeur de fichier
+    Hosts (avec sauvegarde automatique), modes d'alimentation Windows
+  • Palette de commandes (Ctrl+K, ou le bouton "Rechercher" en haut) — accès rapide
+    à n'importe quelle page ou action depuis le clavier
+  • Vérification des mises à jour automatique au démarrage (silencieuse, avec un
+    point rouge animé sur Paramètres si une nouvelle version est disponible)
+  • Interface plus animée : transitions entre les pages, cartes qui réagissent au
+    survol, mini-graphiques d'historique CPU/RAM sur le tableau de bord
+  • Listes optimisées (virtualisation) pour rester fluides avec des centaines
+    de services ou de processus
+
+Paramètres :
   • Démarrer avec Windows (case à cocher dans Paramètres)
   • Démarrer réduite (fenêtre minimisée au lancement)
   • Réduire dans la barre d'état système à la fermeture — le bouton ✕ masque

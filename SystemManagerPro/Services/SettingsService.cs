@@ -67,6 +67,12 @@ public class SettingsService
         Save();
     }
 
+    public void SetCheckUpdatesOnStartup(bool enabled)
+    {
+        Current.CheckUpdatesOnStartup = enabled;
+        Save();
+    }
+
     private void SyncStartupRegistration()
     {
         using var key = Registry.CurrentUser.CreateSubKey(RunKeyPath, writable: true);

@@ -24,6 +24,7 @@ public partial class SettingsView : UserControl
         StartWithWindowsToggle.IsChecked = _settings.Current.StartWithWindows;
         StartMinimizedToggle.IsChecked = _settings.Current.StartMinimized;
         CloseToTrayToggle.IsChecked = _settings.Current.CloseToTray;
+        CheckUpdatesOnStartupToggle.IsChecked = _settings.Current.CheckUpdatesOnStartup;
         BuildAbout();
     }
 
@@ -33,6 +34,11 @@ public partial class SettingsView : UserControl
         AddRow("Version", UpdateService.CurrentVersionString());
         AddRow("Emplacement", Environment.ProcessPath ?? "—");
         AddRow("Dépôt", "github.com/illama/illama_windowsusefulapps");
+    }
+
+    private void CheckUpdatesOnStartupToggle_Click(object sender, RoutedEventArgs e)
+    {
+        _settings.SetCheckUpdatesOnStartup(CheckUpdatesOnStartupToggle.IsChecked == true);
     }
 
     private async void CheckUpdate_Click(object sender, RoutedEventArgs e)

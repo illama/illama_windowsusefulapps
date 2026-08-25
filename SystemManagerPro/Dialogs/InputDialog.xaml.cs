@@ -5,17 +5,18 @@ namespace SystemManagerPro.Dialogs;
 
 public partial class InputDialog : Window
 {
-    private readonly bool _browseIsFile;
-
     public string Field1 => Field1Box.Text.Trim();
     public string Field2 => Field2Box.Text.Trim();
 
-    public InputDialog(string title, string field1Label, string? field2Label = null, bool browseFile = true)
+    public InputDialog(string title, string field1Label, string? field2Label = null,
+        string field1Initial = "", string field2Initial = "", bool field1ReadOnly = false, bool showBrowse = true)
     {
         InitializeComponent();
         TitleText.Text = title;
         Field1Label.Text = field1Label;
-        _browseIsFile = browseFile;
+        Field1Box.Text = field1Initial;
+        Field1Box.IsReadOnly = field1ReadOnly;
+        if (field1ReadOnly) Field1Box.Opacity = 0.65;
 
         if (field2Label == null)
         {
@@ -24,6 +25,8 @@ public partial class InputDialog : Window
         else
         {
             Field2Label.Text = field2Label;
+            Field2Box.Text = field2Initial;
+            BrowseBtn.Visibility = showBrowse ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 
@@ -48,9 +51,10 @@ public partial class InputDialog : Window
     private void Cancel_Click(object sender, RoutedEventArgs e) { DialogResult = false; Close(); }
 
     /// <summary>Affiche la boîte de saisie ; renvoie (Field1, Field2) ou null si annulé.</summary>
-    public static (string Field1, string Field2)? Ask(Window owner, string title, string field1Label, string? field2Label = null)
+    public static (string Field1, string Field2)? Ask(Window owner, string title, string field1Label, string? field2Label = null,
+        string field1Initial = "", string field2Initial = "", bool field1ReadOnly = false, bool showBrowse = true)
     {
-        var dlg = new InputDialog(title, field1Label, field2Label) { Owner = owner };
+        var dlg = new InputDialog(title, field1Label, field2Label, field1Initial, field2Initial, field1ReadOnly, showBrowse) { Owner = owner };
         return dlg.ShowDialog() == true ? (dlg.Field1, dlg.Field2) : null;
     }
 }

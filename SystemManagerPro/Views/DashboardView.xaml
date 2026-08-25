@@ -10,23 +10,29 @@
 
             <!-- Cartes statistiques -->
             <UniformGrid Columns="4" Margin="0,22,0,0">
-                <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <Border Style="{StaticResource CardHover}" Margin="0,0,12,0">
                     <StackPanel>
                         <TextBlock Text="PROCESSEUR" Style="{StaticResource Muted}" FontWeight="SemiBold"/>
                         <TextBlock x:Name="CpuValue" Text="—" FontSize="30" FontWeight="Bold" Margin="0,6,0,10"
                                    Foreground="{StaticResource TextPrimary}"/>
                         <ProgressBar x:Name="CpuBar" Value="0" Maximum="100"/>
+                        <Border Height="30" Margin="0,10,0,0" ClipToBounds="True">
+                            <Polyline x:Name="CpuSparkline" Stroke="{StaticResource Accent}" StrokeThickness="1.6" StrokeLineJoin="Round"/>
+                        </Border>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <Border Style="{StaticResource CardHover}" Margin="0,0,12,0">
                     <StackPanel>
                         <TextBlock Text="MÉMOIRE" Style="{StaticResource Muted}" FontWeight="SemiBold"/>
                         <TextBlock x:Name="RamValue" Text="—" FontSize="30" FontWeight="Bold" Margin="0,6,0,10"/>
                         <ProgressBar x:Name="RamBar" Value="0" Maximum="100"/>
                         <TextBlock x:Name="RamDetail" Style="{StaticResource Muted}" Margin="0,6,0,0"/>
+                        <Border Height="30" Margin="0,8,0,0" ClipToBounds="True">
+                            <Polyline x:Name="RamSparkline" Stroke="{StaticResource Accent2}" StrokeThickness="1.6" StrokeLineJoin="Round"/>
+                        </Border>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <Border Style="{StaticResource CardHover}" Margin="0,0,12,0">
                     <StackPanel>
                         <TextBlock Text="DISQUE SYSTÈME" Style="{StaticResource Muted}" FontWeight="SemiBold"/>
                         <TextBlock x:Name="DiskValue" Text="—" FontSize="30" FontWeight="Bold" Margin="0,6,0,10"/>
@@ -34,7 +40,7 @@
                         <TextBlock x:Name="DiskDetail" Style="{StaticResource Muted}" Margin="0,6,0,0"/>
                     </StackPanel>
                 </Border>
-                <Border Style="{StaticResource Card}">
+                <Border Style="{StaticResource CardHover}">
                     <StackPanel>
                         <TextBlock Text="DISPONIBILITÉ" Style="{StaticResource Muted}" FontWeight="SemiBold"/>
                         <TextBlock x:Name="UptimeValue" Text="—" FontSize="22" FontWeight="Bold" Margin="0,6,0,10"/>

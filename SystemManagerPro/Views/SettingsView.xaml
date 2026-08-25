@@ -85,6 +85,17 @@
                         <Button x:Name="CheckUpdateBtn" Grid.Column="1" Content="🔄  Vérifier les mises à jour"
                                 Style="{StaticResource BtnBase}" Click="CheckUpdate_Click"/>
                     </Grid>
+
+                    <Grid Margin="0,16,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Vérifier automatiquement au démarrage" FontSize="12.5" VerticalAlignment="Center"/>
+                        <CheckBox x:Name="CheckUpdatesOnStartupToggle" Grid.Column="1" Style="{StaticResource ToggleSwitch}"
+                                  VerticalAlignment="Center" Click="CheckUpdatesOnStartupToggle_Click"/>
+                    </Grid>
+
                     <TextBlock x:Name="UpdateStatusText" Text="Version actuelle à jour." Style="{StaticResource Muted}" Margin="0,14,0,0" TextWrapping="Wrap"/>
                     <Button x:Name="InstallUpdateBtn" Content="⬇️  Télécharger et installer la mise à jour" Style="{StaticResource BtnPrimary}"
                             HorizontalAlignment="Left" Margin="0,12,0,0" Click="InstallUpdate_Click" Visibility="Collapsed"/>

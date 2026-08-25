@@ -1,6 +1,9 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Shapes;
 using System.Windows.Threading;
 using SystemManagerPro.Models;
 using SystemManagerPro.Services;
@@ -9,9 +12,13 @@ namespace SystemManagerPro.Views;
 
 public partial class DashboardView : UserControl, IActivatable
 {
+    private const int HistoryLength = 24;
+
     private readonly SystemInfoService _sysInfo = new();
     private readonly NetworkService _network = new();
     private readonly TweaksService _tweaks = new();
+    private readonly Queue<double> _cpuHistory = new();
+    private readonly Queue<double> _ramHistory = new();
     private DispatcherTimer? _timer;
 
     public DashboardView()
@@ -42,11 +49,15 @@ public partial class DashboardView : UserControl, IActivatable
         catch { return; }
 
         CpuValue.Text = $"{snap.CpuPercent:0}%";
-        CpuBar.Value = snap.CpuPercent;
+        AnimateBar(CpuBar, snap.CpuPercent);
+        PushHistory(_cpuHistory, snap.CpuPercent);
+        DrawSparkline(CpuSparkline, _cpuHistory);
 
         RamValue.Text = $"{snap.RamPercent:0}%";
-        RamBar.Value = snap.RamPercent;
+        AnimateBar(RamBar, snap.RamPercent);
         RamDetail.Text = $"{snap.RamUsedGb:0.#} Go / {snap.RamTotalGb:0.#} Go";
+        PushHistory(_ramHistory, snap.RamPercent);
+        DrawSparkline(RamSparkline, _ramHistory);
 
         var sysDisk = snap.Disks.FirstOrDefault(d => d.Label.StartsWith("C", StringComparison.OrdinalIgnoreCase))
                       ?? snap.Disks.FirstOrDefault();
@@ -110,6 +121,43 @@ public partial class DashboardView : UserControl, IActivatable
         stack.Children.Add(header);
         stack.Children.Add(new ProgressBar { Value = d.Percent, Maximum = 100, Margin = new Thickness(0, 8, 0, 0) });
         DisksStack.Children.Add(stack);
+    }
+
+    private static void AnimateBar(ProgressBar bar, double value)
+    {
+        var anim = new DoubleAnimation(bar.Value, value, TimeSpan.FromMilliseconds(500))
+        {
+            EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut },
+        };
+        bar.BeginAnimation(RangeBase.ValueProperty, anim);
+    }
+
+    private void PushHistory(Queue<double> history, double value)
+    {
+        history.Enqueue(value);
+        while (history.Count > HistoryLength) history.Dequeue();
+    }
+
+    private static void DrawSparkline(Polyline line, Queue<double> history)
+    {
+        if (history.Count < 2 || line.ActualWidth <= 0)
+        {
+            // La largeur réelle n'est pas encore connue au tout premier rafraîchissement : on retentera au suivant.
+            line.Points.Clear();
+            return;
+        }
+
+        double width = line.ActualWidth;
+        double height = 28; // hauteur du conteneur (Border Height="30" - petite marge)
+        var values = history.ToArray();
+        var points = new PointCollection();
+        for (int i = 0; i < values.Length; i++)
+        {
+            double x = values.Length == 1 ? width : i * (width / (values.Length - 1));
+            double y = height - (values[i] / 100.0 * height);
+            points.Add(new Point(x, y));
+        }
+        line.Points = points;
     }
 
     private static string FormatUptime(TimeSpan ts)

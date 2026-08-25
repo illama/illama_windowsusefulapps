@@ -1,0 +1,100 @@
+<UserControl x:Class="SystemManagerPro.Views.AdvancedView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Loaded="UserControl_Loaded">
+    <Grid Margin="32,26,32,26">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Avancé" Style="{StaticResource PageTitle}"/>
+        <TextBlock Grid.Row="0" Text="Variables d'environnement, fichier hosts et modes d'alimentation." Style="{StaticResource PageSubtitle}" Margin="0,32,0,0"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,18,0,0">
+            <RadioButton x:Name="TabEnv" Style="{StaticResource PillTab}" GroupName="AdvTabs" Content="Variables d'environnement"
+                         IsChecked="True" Checked="Tab_Checked"/>
+            <RadioButton x:Name="TabHosts" Style="{StaticResource PillTab}" GroupName="AdvTabs" Content="Fichier Hosts" Checked="Tab_Checked"/>
+            <RadioButton x:Name="TabPower" Style="{StaticResource PillTab}" GroupName="AdvTabs" Content="Alimentation" Checked="Tab_Checked"/>
+        </StackPanel>
+
+        <!-- ===== Variables d'environnement ===== -->
+        <ScrollViewer x:Name="EnvPanel" Grid.Row="2" Style="{StaticResource CleanScrollViewer}">
+            <StackPanel Margin="0,16,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton x:Name="ScopeUser" Style="{StaticResource PillTab}" GroupName="EnvScope" Content="Utilisateur"
+                                     IsChecked="True" Checked="Scope_Checked"/>
+                        <RadioButton x:Name="ScopeMachine" Style="{StaticResource PillTab}" GroupName="EnvScope" Content="Système" Checked="Scope_Checked"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="＋  Ajouter" Style="{StaticResource BtnPrimary}" Click="AddEnvVar_Click"/>
+                </Grid>
+
+                <Border Style="{StaticResource Card}" Margin="0,14,0,0" Padding="0">
+                    <DataGrid x:Name="EnvGrid" Margin="6" MaxHeight="420">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="NOM" Binding="{Binding Name}" Width="1*"/>
+                            <DataGridTextColumn Header="VALEUR" Binding="{Binding Value}" Width="2.2*"/>
+                            <DataGridTemplateColumn Header="" Width="180">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Button Content="Modifier" Style="{StaticResource BtnBase}" Click="EditEnvVar_Click" Padding="10,4" Margin="0,0,6,0"/>
+                                            <Button Content="Supprimer" Style="{StaticResource BtnDanger}" Click="DeleteEnvVar_Click" Padding="10,4"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ===== Fichier hosts ===== -->
+        <ScrollViewer x:Name="HostsPanel" Grid.Row="2" Style="{StaticResource CleanScrollViewer}" Visibility="Collapsed">
+            <StackPanel Margin="0,16,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock x:Name="HostsStatusText" Text="Aucune modification en attente." Style="{StaticResource Muted}" VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="🔄  Actualiser" Style="{StaticResource BtnBase}" Click="RefreshHosts_Click" Margin="0,0,8,0"/>
+                        <Button Content="＋  Ajouter" Style="{StaticResource BtnBase}" Click="AddHostEntry_Click" Margin="0,0,8,0"/>
+                        <Button Content="💾  Enregistrer" Style="{StaticResource BtnPrimary}" Click="SaveHosts_Click"/>
+                    </StackPanel>
+                </Grid>
+
+                <Border Style="{StaticResource Card}" Margin="0,14,0,0">
+                    <ItemsControl x:Name="HostsList"/>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ===== Alimentation ===== -->
+        <ScrollViewer x:Name="PowerPanel" Grid.Row="2" Style="{StaticResource CleanScrollViewer}" Visibility="Collapsed">
+            <StackPanel Margin="0,16,0,0">
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="Modes d'alimentation" Style="{StaticResource SectionTitle}" VerticalAlignment="Center"/>
+                            <Button Grid.Column="1" Content="🔄  Actualiser" Style="{StaticResource BtnBase}" Click="RefreshPower_Click"/>
+                        </Grid>
+                        <ItemsControl x:Name="PowerList" Margin="0,14,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

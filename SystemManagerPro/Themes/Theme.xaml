@@ -2,17 +2,21 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ===================== COULEURS ===================== -->
-    <Color x:Key="BgBaseColor">#0E1015</Color>
-    <Color x:Key="BgElevatedColor">#171A21</Color>
-    <Color x:Key="BgElevated2Color">#1E222B</Color>
-    <Color x:Key="BgElevated3Color">#262B35</Color>
-    <Color x:Key="BorderColor">#262B35</Color>
-    <Color x:Key="BorderStrongColor">#343B48</Color>
-    <Color x:Key="TextPrimaryColor">#ECEDF1</Color>
-    <Color x:Key="TextSecondaryColor">#9AA0AC</Color>
-    <Color x:Key="TextMutedColor">#6B7280</Color>
+    <!-- Palette 2 : fond plus profond avec une légère respiration bleutée, texte plus contrasté,
+         dégradé d'accent enrichi d'une teinte violette intermédiaire (mêmes bornes indigo/cyan que
+         l'icône de l'application, pour rester cohérent). -->
+    <Color x:Key="BgBaseColor">#0A0C11</Color>
+    <Color x:Key="BgElevatedColor">#14171F</Color>
+    <Color x:Key="BgElevated2Color">#1B1F29</Color>
+    <Color x:Key="BgElevated3Color">#242938</Color>
+    <Color x:Key="BorderColor">#242938</Color>
+    <Color x:Key="BorderStrongColor">#333A4A</Color>
+    <Color x:Key="TextPrimaryColor">#F1F2F5</Color>
+    <Color x:Key="TextSecondaryColor">#9BA1AF</Color>
+    <Color x:Key="TextMutedColor">#656C7A</Color>
     <Color x:Key="AccentColor">#6C63FF</Color>
     <Color x:Key="AccentColor2">#46B3E6</Color>
+    <Color x:Key="AccentColor3">#7A79FA</Color>
     <Color x:Key="SuccessColor">#22C55E</Color>
     <Color x:Key="WarningColor">#F59E0B</Color>
     <Color x:Key="DangerColor">#EF4444</Color>
@@ -36,8 +40,15 @@
 
     <LinearGradientBrush x:Key="AccentGradient" StartPoint="0,0" EndPoint="1,1">
         <GradientStop Color="{StaticResource AccentColor}" Offset="0"/>
+        <GradientStop Color="{StaticResource AccentColor3}" Offset="0.5"/>
         <GradientStop Color="{StaticResource AccentColor2}" Offset="1"/>
     </LinearGradientBrush>
+
+    <!-- Fond principal avec une légère respiration lumineuse en haut de l'écran (profondeur) -->
+    <RadialGradientBrush x:Key="BgBaseGradient" Center="0.5,0.05" GradientOrigin="0.5,0.05" RadiusX="0.9" RadiusY="0.75">
+        <GradientStop Color="#161A24" Offset="0"/>
+        <GradientStop Color="{StaticResource BgBaseColor}" Offset="1"/>
+    </RadialGradientBrush>
 
     <!-- ===================== POLICES / TAILLES ===================== -->
     <!-- Utilisée uniquement pour les petits glyphes utilitaires (chevron, coche) : police système
@@ -116,8 +127,13 @@
         <Setter Property="Background" Value="{StaticResource BgElevated}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush2}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="CornerRadius" Value="14"/>
         <Setter Property="Padding" Value="18"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="Black" Direction="270" ShadowDepth="3" BlurRadius="18" Opacity="0.32"/>
+            </Setter.Value>
+        </Setter>
         <Style.Triggers>
             <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                 <BeginStoryboard>

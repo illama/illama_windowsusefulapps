@@ -1,4 +1,4 @@
-GESTIONNAIRE SYSTÈME PRO — v2.4.1
+GESTIONNAIRE SYSTÈME PRO — v2.4.2
 ==================================
 
 Application graphique (WPF/.NET 8) qui remplace le script PowerShell
@@ -34,6 +34,18 @@ Nouvelles fonctionnalités :
   • Réglages rapides — thème sombre, extensions de fichiers, anti-pub, etc.
   • Point de restauration système en un clic
   • Journal d'activité exportable
+
+Nouveau en v2.4.2 :
+  • Nouvelle direction artistique complète : palette plus profonde et plus
+    contrastée, dégradé d'accent à 3 tons, fond de fenêtre avec un léger
+    halo lumineux en haut de l'écran (profondeur), cartes avec ombre portée
+    douce et coins plus arrondis
+  • Barre de titre et barre latérale retravaillées : badge du logo avec
+    lueur, séparateur sous la barre de titre, bouton de recherche avec
+    contour visible au survol, badge "Droits administrateur" avec ombre,
+    barre latérale en dégradé subtil
+  • Toujours aucune animation qui suit la souris (retirée en v2.4.1) —
+    uniquement des effets statiques ou déclenchés par clic/survol, stables
 
 Nouveau en v2.4.1 :
   • Direction artistique plus animée, appliquée partout : toutes les cartes

@@ -1,5 +1,5 @@
-GESTIONNAIRE SYSTÈME PRO — v2.4
-================================
+GESTIONNAIRE SYSTÈME PRO — v2.4.1
+==================================
 
 Application graphique (WPF/.NET 8) qui remplace le script PowerShell
 illama_windowsusefulapps_v.1.0.4.ps1.
@@ -34,6 +34,14 @@ Nouvelles fonctionnalités :
   • Réglages rapides — thème sombre, extensions de fichiers, anti-pub, etc.
   • Point de restauration système en un clic
   • Journal d'activité exportable
+
+Nouveau en v2.4.1 :
+  • Direction artistique plus animée, appliquée partout : toutes les cartes
+    de l'appli entrent en fondu à l'affichage, les boutons réagissent au clic
+    (petit effet de pression), le repère de sélection dans la barre latérale
+    s'anime en douceur
+  • Le halo lumineux personnalisé qui suivait le curseur a été retiré
+    (signalé comme buggé) — le curseur Windows normal est utilisé partout
 
 Nouveau en v2.4.0 :
   • Système de licences + compte administrateur

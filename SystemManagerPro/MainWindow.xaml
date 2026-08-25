@@ -16,7 +16,7 @@
     </shell:WindowChrome.WindowChrome>
 
     <Border BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1">
-        <Grid>
+        <Grid x:Name="RootGrid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="44"/>
                 <RowDefinition Height="*"/>

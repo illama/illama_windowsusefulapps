@@ -32,8 +32,9 @@ public partial class DashboardView : UserControl, IActivatable
 
     private async void UserControl_Loaded(object sender, RoutedEventArgs e)
     {
+        // L'entrée en fondu des cartes est gérée globalement par le style Card/CardHover
+        // (EventTrigger sur Loaded) — inutile de la dupliquer ici.
         await Refresh();
-        PlayEntranceAnimation();
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
         _timer.Tick += async (_, _) => await Refresh();
         _timer.Start();
@@ -43,26 +44,6 @@ public partial class DashboardView : UserControl, IActivatable
     {
         _timer?.Stop();
         _timer = null;
-    }
-
-    /// <summary>Petite entrée en fondu des cartes au premier affichage de la page.
-    /// N'anime QUE l'opacité : le style CardHover pose déjà son propre RenderTransform
-    /// (un ScaleTransform, pour l'effet de survol) — le remplacer ici par un autre transform
-    /// cassait l'animation de survol (exception à chaque passage de souris sur une carte).</summary>
-    private void PlayEntranceAnimation()
-    {
-        var cards = new UIElement[] { CpuCard, RamCard, DiskCard, UptimeCard };
-        for (int i = 0; i < cards.Length; i++)
-        {
-            var card = cards[i];
-            card.Opacity = 0;
-            var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(280))
-            {
-                BeginTime = TimeSpan.FromMilliseconds(i * 60),
-                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut },
-            };
-            card.BeginAnimation(OpacityProperty, fade);
-        }
     }
 
     /// <summary>Interroge le système (WMI, disques) sur un thread d'arrière-plan puis met à jour

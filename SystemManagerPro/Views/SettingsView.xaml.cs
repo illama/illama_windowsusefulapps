@@ -21,6 +21,15 @@ public partial class SettingsView : UserControl
 
     private void UserControl_Loaded(object sender, RoutedEventArgs e)
     {
+        // Auto-réparation : si le réglage dit "activé" mais que la tâche planifiée réelle a disparu
+        // (par ex. incohérence laissée par une mise à jour), on la recrée silencieusement au lieu de
+        // laisser l'utilisateur devoir décocher/recocher la case pour que ça reparte.
+        if (_settings.Current.StartWithWindows)
+        {
+            try { if (!_settings.IsStartWithWindowsRegistered()) _settings.SetStartWithWindows(true); }
+            catch { /* pas bloquant à l'affichage de la page */ }
+        }
+
         StartWithWindowsToggle.IsChecked = _settings.Current.StartWithWindows;
         StartMinimizedToggle.IsChecked = _settings.Current.StartMinimized;
         CloseToTrayToggle.IsChecked = _settings.Current.CloseToTray;
@@ -28,6 +37,13 @@ public partial class SettingsView : UserControl
         BuildAbout();
         RefreshLicenseStatus();
         RefreshAdminStatus();
+
+        // Réutilise le résultat de la vérification silencieuse faite au démarrage (voir MainWindow) au
+        // lieu de laisser le texte statique trompeur "à jour" tant qu'on n'a pas cliqué sur "Vérifier" :
+        // s'il n'y en a pas encore (vérif désactivée, ou pas encore terminée), on relance une vérification
+        // silencieuse ici même.
+        if (UpdateService.LastResult != null) RenderUpdateInfo(UpdateService.LastResult);
+        else _ = RunUpdateCheckAsync(silent: true);
     }
 
     private void RefreshLicenseStatus()
@@ -96,32 +112,55 @@ public partial class SettingsView : UserControl
         _settings.SetCheckUpdatesOnStartup(CheckUpdatesOnStartupToggle.IsChecked == true);
     }
 
-    private async void CheckUpdate_Click(object sender, RoutedEventArgs e)
+    private async void CheckUpdate_Click(object sender, RoutedEventArgs e) => await RunUpdateCheckAsync(silent: false);
+
+    /// <summary>Vérifie les mises à jour et met à jour l'affichage. En mode silencieux (appelé depuis
+    /// Loaded quand aucun résultat n'est encore en cache), les échecs réseau ne remplacent pas le texte
+    /// par un message d'erreur intrusif — l'utilisateur peut toujours cliquer sur "Vérifier" lui-même.</summary>
+    private async Task RunUpdateCheckAsync(bool silent)
     {
-        CheckUpdateBtn.IsEnabled = false;
-        UpdateStatusText.Text = "Vérification en cours…";
-        InstallUpdateBtn.Visibility = Visibility.Collapsed;
+        if (!silent)
+        {
+            CheckUpdateBtn.IsEnabled = false;
+            UpdateStatusText.Text = "Vérification en cours…";
+            InstallUpdateBtn.Visibility = Visibility.Collapsed;
+        }
         try
         {
             _lastCheck = await _updates.CheckForUpdateAsync();
+            RenderUpdateInfo(_lastCheck);
             if (_lastCheck.Available)
-            {
-                UpdateStatusText.Text = $"Une nouvelle version est disponible : v{_lastCheck.LatestVersion} " +
-                                         $"(version actuelle : v{_lastCheck.CurrentVersion}).";
-                InstallUpdateBtn.Visibility = string.IsNullOrEmpty(_lastCheck.DownloadUrl) ? Visibility.Collapsed : Visibility.Visible;
                 LogService.Instance.Log($"Mise à jour disponible : v{_lastCheck.LatestVersion}.", LogLevel.Info);
-            }
-            else
-            {
-                UpdateStatusText.Text = $"Vous utilisez déjà la dernière version (v{_lastCheck.CurrentVersion}).";
-            }
         }
         catch (Exception ex)
         {
-            UpdateStatusText.Text = "Échec de la vérification : " + ex.Message;
-            LogService.Instance.Log("Échec de la vérification des mises à jour : " + ex.Message, LogLevel.Error);
+            if (!silent)
+            {
+                UpdateStatusText.Text = "Échec de la vérification : " + ex.Message;
+                LogService.Instance.Log("Échec de la vérification des mises à jour : " + ex.Message, LogLevel.Error);
+            }
+            else
+            {
+                UpdateStatusText.Text = "Vérification impossible pour le moment.";
+            }
         }
-        finally { CheckUpdateBtn.IsEnabled = true; }
+        finally { if (!silent) CheckUpdateBtn.IsEnabled = true; }
+    }
+
+    private void RenderUpdateInfo(UpdateInfo info)
+    {
+        _lastCheck = info;
+        if (info.Available)
+        {
+            UpdateStatusText.Text = $"Une nouvelle version est disponible : v{info.LatestVersion} " +
+                                     $"(version actuelle : v{info.CurrentVersion}).";
+            InstallUpdateBtn.Visibility = string.IsNullOrEmpty(info.DownloadUrl) ? Visibility.Collapsed : Visibility.Visible;
+        }
+        else
+        {
+            UpdateStatusText.Text = $"Vous utilisez déjà la dernière version (v{info.CurrentVersion}).";
+            InstallUpdateBtn.Visibility = Visibility.Collapsed;
+        }
     }
 
     private async void InstallUpdate_Click(object sender, RoutedEventArgs e)

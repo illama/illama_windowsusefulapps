@@ -38,7 +38,7 @@ public partial class MainWindow : Window
             ["services"] = NavServices, ["processes"] = NavProcesses, ["language"] = NavLanguage,
             ["keyboard"] = NavKeyboard, ["installer"] = NavInstaller, ["cleanup"] = NavCleanup,
             ["network"] = NavNetwork, ["uninstaller"] = NavUninstaller, ["advanced"] = NavAdvanced,
-            ["tweaks"] = NavTweaks,
+            ["tweaks"] = NavTweaks, ["wheel"] = NavWheel,
         };
         RefreshLockIndicators();
 
@@ -57,6 +57,13 @@ public partial class MainWindow : Window
         _tray = new TrayIconService("Gestionnaire Système Pro");
         _tray.OpenRequested += () => Dispatcher.Invoke(RestoreFromTray);
         _tray.ExitRequested += () => Dispatcher.Invoke(ExitApplication);
+
+        // Si Windows (ou un autre programme, ex. un installateur de mise à jour via Restart Manager)
+        // demande la fin de session de l'appli, on doit vraiment se fermer et non se réduire dans la
+        // barre d'état système : sinon le processus reste ouvert en arrière-plan, l'installateur finit
+        // par le tuer brutalement (sans le nettoyage normal), et le fichier exécutable peut même rester
+        // verrouillé pendant la copie des nouveaux fichiers.
+        Application.Current.SessionEnding += (_, _) => _forceClose = true;
 
         if (SettingsService.Instance.Current.StartMinimized)
             WindowState = WindowState.Minimized;
@@ -177,6 +184,7 @@ public partial class MainWindow : Window
             nameof(NavUninstaller) => "uninstaller",
             nameof(NavAdvanced) => "advanced",
             nameof(NavTweaks) => "tweaks",
+            nameof(NavWheel) => "wheel",
             nameof(NavLogs) => "logs",
             nameof(NavSettings) => "settings",
             _ => "dashboard"
@@ -212,6 +220,7 @@ public partial class MainWindow : Window
                 "uninstaller" => new UninstallerView(),
                 "advanced" => new AdvancedView(),
                 "tweaks" => new TweaksView(),
+                "wheel" => new WheelView(),
                 "logs" => new LogsView(),
                 "settings" => new SettingsView(),
                 "administration" => CreateAdministrationView(),
@@ -236,6 +245,7 @@ public partial class MainWindow : Window
         "uninstaller" => "Programmes",
         "advanced" => "Avancé",
         "tweaks" => "Réglages rapides",
+        "wheel" => "Molette",
         _ => key,
     };
 
@@ -347,6 +357,7 @@ public partial class MainWindow : Window
             new("🗑", "Programmes", "Désinstaller des applications", () => Select(NavUninstaller)),
             new("🧬", "Avancé", "Variables d'environnement, Hosts, alimentation", () => Select(NavAdvanced)),
             new("🛠", "Réglages rapides", "Interrupteurs système", () => Select(NavTweaks)),
+            new("🖱️", "Molette", "Puissance de la molette : global ou par application", () => Select(NavWheel)),
             new("📜", "Journal", "Historique des actions", () => Select(NavLogs)),
             new("⚙️", "Paramètres", "Démarrage, fermeture, mises à jour", () => Select(NavSettings)),
             new("🧽", "Vider le cache DNS", "Action rapide", QuickFlushDns),

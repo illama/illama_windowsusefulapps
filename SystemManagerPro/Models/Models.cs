@@ -125,6 +125,24 @@ public class AppSettings
     public bool CheckUpdatesOnStartup { get; set; } = true;
 }
 
+public enum WheelPowerMode { Global, SpecificApp }
+
+/// <summary>Réglages persistants de la fonctionnalité "Molette" : soit un réglage Windows global
+/// (lignes/caractères par cran, s'applique partout), soit un multiplicateur appliqué uniquement à une
+/// application ciblée (chemin d'un .exe ou d'un dossier) via une interception bas niveau de la molette.</summary>
+public class WheelPowerSettings
+{
+    public WheelPowerMode Mode { get; set; } = WheelPowerMode.Global;
+    public bool AppModeEnabled { get; set; }
+    public string TargetPath { get; set; } = "";
+    public bool TargetIsFolder { get; set; }
+    public double Multiplier { get; set; } = 2.0;
+}
+
+/// <summary>Un évènement de molette amplifié par le mode "Application spécifique", pour l'affichage
+/// des statistiques en direct dans la vue Molette.</summary>
+public record WheelBoostStat(string ProcessName, int OriginalDelta, int AppliedDelta, long TotalBoosted);
+
 public class QuickTweak : ObservableObject
 {
     public string Nom { get; set; } = "";

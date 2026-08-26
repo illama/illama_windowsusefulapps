@@ -96,7 +96,7 @@
                                   VerticalAlignment="Center" Click="CheckUpdatesOnStartupToggle_Click"/>
                     </Grid>
 
-                    <TextBlock x:Name="UpdateStatusText" Text="Version actuelle à jour." Style="{StaticResource Muted}" Margin="0,14,0,0" TextWrapping="Wrap"/>
+                    <TextBlock x:Name="UpdateStatusText" Text="Vérification en cours…" Style="{StaticResource Muted}" Margin="0,14,0,0" TextWrapping="Wrap"/>
                     <Button x:Name="InstallUpdateBtn" Content="⬇️  Télécharger et installer la mise à jour" Style="{StaticResource BtnPrimary}"
                             HorizontalAlignment="Left" Margin="0,12,0,0" Click="InstallUpdate_Click" Visibility="Collapsed"/>
                     <ProgressBar x:Name="DownloadProgress" Margin="0,10,0,0" Visibility="Collapsed" MaxWidth="320" HorizontalAlignment="Left"/>

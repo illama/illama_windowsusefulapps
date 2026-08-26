@@ -1,4 +1,4 @@
-GESTIONNAIRE SYSTÈME PRO — v2.4.2
+GESTIONNAIRE SYSTÈME PRO — v2.5.0
 ==================================
 
 Application graphique (WPF/.NET 8) qui remplace le script PowerShell
@@ -34,6 +34,35 @@ Nouvelles fonctionnalités :
   • Réglages rapides — thème sombre, extensions de fichiers, anti-pub, etc.
   • Point de restauration système en un clic
   • Journal d'activité exportable
+  • Molette — puissance de défilement globale ou par application ciblée
+
+Nouveau en v2.5.0 :
+  • Nouvelle section « Molette » — contrôle de la puissance de défilement :
+    - Mode « Tout l'ordinateur » : réglage Windows officiel (lignes par cran
+      vertical, caractères par cran horizontal), avec pourcentage affiché et
+      une zone de test en direct (crans détectés, lignes équivalentes)
+    - Mode « Application spécifique » : cible un .exe ou un dossier précis
+      et applique un multiplicateur (x0.25 à x8) UNIQUEMENT quand la souris
+      est au-dessus de cette application — le reste de l'ordinateur n'est
+      jamais affecté. Statistiques en direct (évènements amplifiés, delta
+      d'origine → delta appliqué)
+    - Fonctionnalité payante comme les autres outils avancés
+  • Corrections :
+    - Le repère bleu de sélection dans la barre latérale restait allumé sur
+      un ancien onglet même après avoir changé de page (animation d'entrée
+      sans son inverse) — corrigé
+    - La page Paramètres affichait « à jour » avant même d'avoir vérifié
+      quoi que ce soit ; elle réutilise maintenant le résultat déjà connu
+      (ou relance une vérification silencieuse) au lieu d'un texte figé
+    - « Démarrer avec Windows » pouvait sembler décoché après une mise à
+      jour (lecture des réglages plus robuste face à un fichier
+      momentanément verrouillé juste après réinstallation, et
+      réparation automatique si la tâche planifiée avait disparu)
+    - L'appli se fermait vraiment (au lieu de se réduire dans la barre des
+      tâches) quand Windows/un installateur lui demandait de quitter
+    - L'installateur repart désormais sur un dossier d'installation
+      totalement vidé à chaque mise à jour, pour ne plus laisser traîner
+      d'anciens fichiers d'une version précédente
 
 Nouveau en v2.4.2 :
   • Nouvelle direction artistique complète : palette plus profonde et plus

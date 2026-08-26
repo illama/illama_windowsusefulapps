@@ -26,7 +26,7 @@ public class LicenseService
     public static readonly HashSet<string> PaidFeatureKeys = new(StringComparer.OrdinalIgnoreCase)
     {
         "services", "processes", "language", "keyboard", "installer", "cleanup", "network",
-        "uninstaller", "advanced", "tweaks",
+        "uninstaller", "advanced", "tweaks", "wheel",
     };
 
     public bool IsAdminSession { get; private set; }

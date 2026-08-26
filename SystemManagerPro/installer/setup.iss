@@ -2,7 +2,7 @@
 ; Compilation : "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer\setup.iss
 
 #define MyAppName "Gestionnaire Système Pro"
-#define MyAppVersion "2.4.2"
+#define MyAppVersion "2.5.0"
 #define MyAppPublisher "illama"
 #define MyAppURL "https://github.com/illama/illama_windowsusefulapps"
 #define MyAppExeName "SystemManagerPro.exe"
@@ -38,6 +38,12 @@ Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "Créer un raccourci sur le Bureau"; GroupDescription: "Raccourcis supplémentaires :"
+
+[InstallDelete]
+; Purge complète du dossier d'installation avant de recopier les nouveaux fichiers : une mise à jour qui
+; se contente de copier par-dessus laisse traîner les anciens fichiers qui n'existent plus dans la
+; nouvelle version (DLL renommées/retirées...). On repart donc sur un dossier vide à chaque install/maj.
+Type: filesandordirs; Name: "{app}"
 
 [Files]
 Source: "..\publish-installer\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs

@@ -18,6 +18,13 @@ public class UpdateService
 
     private static readonly HttpClient Http = BuildClient();
 
+    /// <summary>Dernier résultat connu, partagé par toute l'appli : la vérification silencieuse faite
+    /// au démarrage (voir MainWindow) alimentait auparavant seulement le petit point rouge de la barre
+    /// latérale, sans jamais être réutilisée — du coup la page Paramètres réaffichait un texte statique
+    /// ("à jour") tant qu'on n'y cliquait pas manuellement sur "Vérifier", même si une mise à jour était
+    /// déjà connue disponible. Toute vérification réussie (silencieuse ou manuelle) met ce cache à jour.</summary>
+    public static UpdateInfo? LastResult { get; private set; }
+
     private static HttpClient BuildClient()
     {
         var client = new HttpClient();
@@ -72,7 +79,9 @@ public class UpdateService
         var asset = release.Assets.FirstOrDefault(a => a.Name.Contains(AssetNameHint, StringComparison.OrdinalIgnoreCase)
                                                         && a.Name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase));
 
-        return new UpdateInfo(isNewer, current, latestTag, asset?.DownloadUrl ?? "", release.HtmlUrl, release.Body);
+        var info = new UpdateInfo(isNewer, current, latestTag, asset?.DownloadUrl ?? "", release.HtmlUrl, release.Body);
+        LastResult = info;
+        return info;
     }
 
     private static int CompareVersions(string a, string b)

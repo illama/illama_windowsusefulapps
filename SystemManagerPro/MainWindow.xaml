@@ -36,7 +36,7 @@
                                Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     <Border Background="{StaticResource BgElevated3}" BorderBrush="{StaticResource BorderBrush2}" BorderThickness="1"
                             CornerRadius="4" Padding="6,2" Margin="10,0,0,0">
-                        <TextBlock Text="v2.4" FontSize="10.5" Foreground="{StaticResource TextMuted}"/>
+                        <TextBlock Text="v2.5" FontSize="10.5" Foreground="{StaticResource TextMuted}"/>
                     </Border>
                 </StackPanel>
 
@@ -131,6 +131,8 @@
                                              Content="Avancé" Checked="Nav_Checked"/>
                                 <RadioButton x:Name="NavTweaks" Style="{StaticResource NavItem}" GroupName="Nav" Tag="🛠"
                                              Content="Réglages rapides" Checked="Nav_Checked"/>
+                                <RadioButton x:Name="NavWheel" Style="{StaticResource NavItem}" GroupName="Nav" Tag="🖱️"
+                                             Content="Molette" Checked="Nav_Checked"/>
                                 <RadioButton x:Name="NavLogs" Style="{StaticResource NavItem}" GroupName="Nav" Tag="📜"
                                              Content="Journal" Checked="Nav_Checked"/>
 

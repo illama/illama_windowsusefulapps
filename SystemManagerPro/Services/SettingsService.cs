@@ -44,12 +44,27 @@ public class SettingsService
 
     private static AppSettings Load()
     {
-        try
+        // Quelques tentatives avec une courte pause : juste après une mise à jour (relance immédiate
+        // par l'installateur), il est arrivé que le fichier soit encore brièvement verrouillé (antivirus,
+        // ancien processus pas totalement terminé) — une seule lecture ratée faisait silencieusement
+        // repartir sur des réglages par défaut (ex : "Démarrer avec Windows" redevenu décoché) sans que
+        // rien ne le réécrive tant que l'utilisateur n'y retouchait pas manuellement.
+        for (int attempt = 1; attempt <= 3; attempt++)
         {
-            if (File.Exists(SettingsPath))
+            try
+            {
+                if (!File.Exists(SettingsPath)) return new AppSettings();
                 return JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(SettingsPath)) ?? new AppSettings();
+            }
+            catch when (attempt < 3)
+            {
+                Thread.Sleep(150);
+            }
+            catch
+            {
+                // dernière tentative épuisée : fichier vraiment corrompu/illisible, on repart par défaut
+            }
         }
-        catch { /* fichier corrompu ou illisible : on repart sur des valeurs par défaut */ }
         return new AppSettings();
     }
 
